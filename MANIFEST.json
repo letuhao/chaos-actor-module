@@ -1,0 +1,26 @@
+{
+  "name": "actor-module-skeleton",
+  "version": "v1.0.0",
+  "generated_utc": "2025-09-06T20:16:23.759952Z",
+  "folders": [
+    "packages/actor-core/src",
+    "packages/actor-core/tests",
+    "packages/actor-stats/src",
+    "packages/actor-stats/tests",
+    "packages/actor-combat/src",
+    "packages/actor-combat/tests",
+    "packages/actor-conversion/src",
+    "packages/actor-conversion/tests",
+    "packages/actor-cultivation-spi/src",
+    "packages/actor-cultivation-spi/tests",
+    "packages/cultivation-ancient_qi/src",
+    "packages/cultivation-ancient_qi/tests",
+    "packages/cultivation-western_mage/src",
+    "packages/cultivation-western_mage/tests",
+    "apps/zone-server/src",
+    "apps/zone-server/tests",
+    "apps/tools/sim-cli/src",
+    "apps/tools/sim-cli/tests"
+  ],
+  "notes": "Pure skeleton only. No classes/interfaces or design docs included."
+}
