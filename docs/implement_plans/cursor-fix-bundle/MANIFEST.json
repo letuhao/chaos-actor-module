@@ -1,0 +1,11 @@
+{
+  "name": "cursor-fix-bundle",
+  "version": "v1.0.0",
+  "generated_utc": "2025-09-06T20:45:48.450735Z",
+  "files": [
+    "RUNBOOK.md",
+    "PATCH_GUIDE.md",
+    "TESTS.md",
+    "apply_fixes.ps1"
+  ]
+}

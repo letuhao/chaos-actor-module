@@ -1,0 +1,17 @@
+{
+  "_id": "actor_123",
+  "level": 12,
+  "xp": 34567,
+  "unspentPoints": 5,
+  "allocations": {
+    "STR": 10,
+    "INT": 4,
+    "WIL": 3,
+    "AGI": 6,
+    "SPD": 5,
+    "END": 8,
+    "PER": 2,
+    "LUK": 1
+  },
+  "updatedAt": "2025-09-07T00:00:00.000Z"
+}

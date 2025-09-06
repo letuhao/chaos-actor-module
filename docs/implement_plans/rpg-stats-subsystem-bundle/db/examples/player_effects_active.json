@@ -1,0 +1,25 @@
+{
+  "actorId": "actor_123",
+  "sourceKind": "BUFF",
+  "sourceId": "buff_battle_cry",
+  "modifiers": [
+    {
+      "key": "ATK",
+      "op": "MULTIPLY",
+      "value": 0.15,
+      "source": {
+        "kind": "BUFF",
+        "id": "buff_battle_cry"
+      },
+      "conditions": {
+        "durationMs": 10000,
+        "stackId": "battle_cry",
+        "maxStacks": 1
+      }
+    }
+  ],
+  "expiresAt": "2025-09-07T00:10:00.000Z",
+  "stackId": "battle_cry",
+  "stacks": 1,
+  "appliedAt": "2025-09-07T00:00:00.000Z"
+}

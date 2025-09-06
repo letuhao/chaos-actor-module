@@ -1,0 +1,61 @@
+{
+  "_id": "build_2025_09_07",
+  "version": 1,
+  "stats": [
+    {
+      "key": "STR",
+      "category": "PRIMARY",
+      "displayName": "Strength"
+    },
+    {
+      "key": "INT",
+      "category": "PRIMARY",
+      "displayName": "Intelligence"
+    },
+    {
+      "key": "WIL",
+      "category": "PRIMARY",
+      "displayName": "Willpower"
+    },
+    {
+      "key": "AGI",
+      "category": "PRIMARY",
+      "displayName": "Agility"
+    },
+    {
+      "key": "SPD",
+      "category": "PRIMARY",
+      "displayName": "Speed"
+    },
+    {
+      "key": "END",
+      "category": "PRIMARY",
+      "displayName": "Endurance"
+    },
+    {
+      "key": "PER",
+      "category": "PRIMARY",
+      "displayName": "Personality"
+    },
+    {
+      "key": "LUK",
+      "category": "PRIMARY",
+      "displayName": "Luck"
+    },
+    {
+      "key": "HP_MAX",
+      "category": "RESOURCE",
+      "displayName": "Max HP",
+      "rounding": "INT"
+    },
+    {
+      "key": "ATK",
+      "category": "SECONDARY",
+      "displayName": "Attack"
+    }
+  ],
+  "baseCurves": {
+    "baseHp": "curve:classLevelHp"
+  },
+  "createdAt": "2025-09-07T00:00:00.000Z"
+}

@@ -1,0 +1,16 @@
+{
+  "actorId": "actor_123",
+  "titleId": "title_dragonslayer",
+  "isActive": true,
+  "modifiers": [
+    {
+      "key": "ATK",
+      "op": "ADD_PCT",
+      "value": 0.05,
+      "source": {
+        "kind": "TITLE",
+        "id": "title_dragonslayer"
+      }
+    }
+  ]
+}

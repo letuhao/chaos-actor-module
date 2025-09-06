@@ -1,0 +1,26 @@
+{
+  "actorId": "actor_123",
+  "slot": "MAIN_HAND",
+  "itemId": "itm_sword_knight",
+  "modifiers": [
+    {
+      "key": "ATK",
+      "op": "ADD_FLAT",
+      "value": 35,
+      "source": {
+        "kind": "ITEM",
+        "id": "itm_sword_knight"
+      }
+    },
+    {
+      "key": "CRIT_CHANCE",
+      "op": "ADD_PCT",
+      "value": 0.05,
+      "source": {
+        "kind": "ITEM",
+        "id": "itm_sword_knight"
+      }
+    }
+  ],
+  "updatedAt": "2025-09-07T00:00:00.000Z"
+}

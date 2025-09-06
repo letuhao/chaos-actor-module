@@ -1,0 +1,12 @@
+{
+  "name": "actor-core-interface",
+  "version": "v1.0.0",
+  "generated_utc": "2025-09-06T20:25:40.054841Z",
+  "files": [
+    "README.md",
+    "SPEC.md",
+    "packages/actor-core/ts/index.ts",
+    "packages/actor-core/go/actorcore/actorcore.go",
+    "packages/actor-core/rust/src/lib.rs"
+  ]
+}
