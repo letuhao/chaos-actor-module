@@ -27,3 +27,12 @@ and emits a deterministic **StatSnapshot** for combat & UI.
 
 
 > **Update 2025-09-06T21:15:08.141940Z**: Primary stats expanded to **8** (Morrowind-style): STR, INT, WIL, AGI, SPD, END, PER, LUK.
+
+
+## Language Selection (Polyglot)
+This design is **language-independent**. You can implement it in Go, TypeScript, C#, etc.
+
+- **Default**: Go (Golang).
+- To switch language, tell Cursor in your first command: e.g. `IMPLEMENT_LANG=go` (default) or `IMPLEMENT_LANG=ts`.
+- The `00-COLLECTION-CURSOR.md` contains branching instructions for Go and TypeScript separately.
+

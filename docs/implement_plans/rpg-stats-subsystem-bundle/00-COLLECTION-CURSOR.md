@@ -1,5 +1,11 @@
 # Collection — Cursor Control Script
 
+> Set `IMPLEMENT_LANG` to choose language. Default is `go`.
+## 1) Select implementation language
+- Tell Cursor: `IMPLEMENT_LANG=go` (default) or `IMPLEMENT_LANG=ts`.
+- Cursor should remember this choice for all subsequent steps.
+
+
 > **Purpose**: Drive Cursor to read docs, generate code file-by-file, and run tests for the RPG Stats Sub-System.
 > You can paste commands from each step directly into Cursor's chat/terminal.
 
@@ -132,3 +138,59 @@ Write unit tests in `tests/resolver.spec.ts`.
 - Lint passes (ESLint + Prettier).
 - Public API exported in `packages/rpg-stats`.
 - Small demo script that prints a resolved `StatSnapshot` for a sample actor.
+
+## 2A) Create package skeleton (Go)
+**Command to Cursor (Go):**
+
+Create the following structure and files:
+
+```
+packages/rpg-stats-go/
+  go.mod (module github.com/yourorg/rpg-stats-go; go 1.22)
+  internal/model/types.go
+  internal/rules/stacking.go
+  internal/registry/registry.go
+  internal/registry/curves.go
+  internal/resolver/resolver.go
+  internal/integration/provider.go
+  internal/integration/progression.go
+  internal/integration/mongo_adapters.go
+  internal/util/hash.go
+  cmd/demo/main.go
+  test/stacking_test.go
+  test/resolver_test.go
+  test/registry_test.go
+  README.md
+```
+
+Fill files per specs in `02-DETAIL-DESIGN.md`, `06-API-CONTRACTS.md`, and `09-LANGUAGE-GUIDE.md`.
+
+### Go Type Stubs (paste into files)
+- `internal/model/types.go` should define:
+  - `type StatKey string` and the 8 primary keys.
+  - `type ModifierStacking string` and ops.
+  - `type ModifierSourceRef struct { Kind string; ID string; Label string }`
+  - `type ModifierConditions struct { RequiresTagsAll, RequiresTagsAny, ForbidTags []string; DurationMs int64; StackID string; MaxStacks int }`
+  - `type StatModifier struct { Key StatKey; Op ModifierStacking; Value float64; Source ModifierSourceRef; Conditions *ModifierConditions; Priority int }`
+  - `type StatBreakdown struct { Base, AdditiveFlat, AdditivePct, Multiplicative float64; Overrides []OverrideEntry; CappedTo *float64; Notes []string }`
+  - `type StatValue struct { Key StatKey; Value float64; Breakdown *StatBreakdown }`
+  - `type StatSnapshot struct { ActorID string; Stats map[StatKey]StatValue; Version int; Ts int64 }`
+  - `type StatDef struct { Key StatKey; Category string; DisplayName string; Description string; Rounding string }`
+  - `type ComputeInput struct { ActorID string; Level int; BaseAllocations map[StatKey]int; Registry []StatDef; Items, Titles, Passives, Buffs, Debuffs, Auras, Environment []StatModifier; WithBreakdown bool }`
+
+- `internal/rules/stacking.go`: implement deterministic order and helpers.
+
+- `internal/resolver/resolver.go`: implement `type Resolver interface { ComputeSnapshot(ComputeInput) StatSnapshot }` and the algorithm.
+
+- `internal/integration/mongo_adapters.go`: collections from `03-DATABASE-DESIGN-MONGODB.md` using `mongo-driver`.
+
+- `cmd/demo/main.go`: load fixtures (JSON), call resolver, print snapshot.
+
+**Tests:** Use table-driven tests in `test/*.go` per `05-TEST-GUIDE.md`.
+
+---
+
+## 2B) Create package skeleton (TypeScript)
+(Identical to the earlier TS scaffold; use `packages/rpg-stats/` with the files listed previously in this document.)
+
+---

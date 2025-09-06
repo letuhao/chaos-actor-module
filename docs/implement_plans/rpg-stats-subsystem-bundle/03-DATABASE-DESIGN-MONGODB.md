@@ -78,3 +78,6 @@ See `db/indexes.js` for `createIndex` calls.
 - Use **lean** projections for hot paths.
 - Consider a **cache layer** for content registry.
 - TTL optional: add TTL index on `expiresAt` in `player_effects_active` for expired cleanup.
+
+
+**Driver Notes (Go):** Use `go.mongodb.org/mongo-driver/mongo` with context timeouts, lean projections, and indexes from `db/indexes.js`.
