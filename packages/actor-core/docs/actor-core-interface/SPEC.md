@@ -89,6 +89,11 @@ Combat and other systems depend on these signatures and invariants.
 - TerrainMastery: map[string, float64] (effectiveness in different terrains)
 - ClimateAdapt: map[string, float64] (adaptation to different climates)
 
+#### Non-Combat Effects
+- NonCombatEffects: map[string, NonCombatEffect] (active non-combat effects)
+- EffectResistance: map[string, float64] (resistance to non-combat effects)
+- EffectImmunity: map[string, bool] (immunity to non-combat effects)
+
 #### Learning & Adaptation
 - LearningRate: float64 (how fast the actor learns)
 - Adaptation: float64 (how well they adapt to new situations)
@@ -191,6 +196,106 @@ type AmplifierType interface {
 type AmplifierValue struct {
     Multiplier float64 // damage multiplier
     Piercing float64   // pierces through defences (0.0 to 1.0)
+}
+```
+
+### NonCombatEffect Interface
+```go
+type NonCombatEffect struct {
+    ID          string                    `json:"id"`
+    Name        string                    `json:"name"`
+    Type        NonCombatEffectType      `json:"type"`
+    Category    EffectCategory           `json:"category"`
+    Duration    int64                    `json:"duration"`
+    Intensity   float64                  `json:"intensity"`
+    Stackable   bool                     `json:"stackable"`
+    MaxStacks   int                      `json:"max_stacks"`
+    Effects     []NonCombatEffectModifier `json:"effects"`
+    Conditions  []EffectCondition        `json:"conditions"`
+    Source      string                   `json:"source"`
+    StartTime   int64                    `json:"start_time"`
+    EndTime     int64                    `json:"end_time"`
+    IsActive    bool                     `json:"is_active"`
+}
+
+type NonCombatEffectType string
+const (
+    // Cultivation Effects
+    CultivationBoostEffect    NonCombatEffectType = "cultivation_boost"
+    BreakthroughEffect        NonCombatEffectType = "breakthrough"
+    QiRefinementEffect        NonCombatEffectType = "qi_refinement"
+    SpiritualInsightEffect    NonCombatEffectType = "spiritual_insight"
+    
+    // Learning Effects
+    LearningBoostEffect       NonCombatEffectType = "learning_boost"
+    MemoryEnhancementEffect   NonCombatEffectType = "memory_enhancement"
+    FocusEffect              NonCombatEffectType = "focus"
+    ConcentrationEffect      NonCombatEffectType = "concentration"
+    
+    // Social Effects
+    CharismaBoostEffect      NonCombatEffectType = "charisma_boost"
+    LeadershipEffect         NonCombatEffectType = "leadership"
+    DiplomacyEffect          NonCombatEffectType = "diplomacy"
+    ReputationEffect         NonCombatEffectType = "reputation"
+    
+    // Crafting Effects
+    CraftingMasteryEffect    NonCombatEffectType = "crafting_mastery"
+    AlchemyBoostEffect       NonCombatEffectType = "alchemy_boost"
+    ForgingBoostEffect       NonCombatEffectType = "forging_boost"
+    EnchantingBoostEffect    NonCombatEffectType = "enchanting_boost"
+    
+    // Movement Effects
+    SpeedBoostEffect         NonCombatEffectType = "speed_boost"
+    FlightEffect             NonCombatEffectType = "flight"
+    TeleportationEffect      NonCombatEffectType = "teleportation"
+    StealthEffect            NonCombatEffectType = "stealth"
+    
+    // Environmental Effects
+    WeatherAdaptationEffect  NonCombatEffectType = "weather_adaptation"
+    TerrainMasteryEffect     NonCombatEffectType = "terrain_mastery"
+    ClimateResistanceEffect  NonCombatEffectType = "climate_resistance"
+    
+    // Mystical Effects
+    FateManipulationEffect   NonCombatEffectType = "fate_manipulation"
+    KarmaInfluenceEffect     NonCombatEffectType = "karma_influence"
+    LuckBoostEffect          NonCombatEffectType = "luck_boost"
+    FortuneEffect            NonCombatEffectType = "fortune"
+)
+
+type EffectCategory string
+const (
+    CultivationCategory EffectCategory = "cultivation"
+    LearningCategory    EffectCategory = "learning"
+    SocialCategory      EffectCategory = "social"
+    CraftingCategory    EffectCategory = "crafting"
+    MovementCategory    EffectCategory = "movement"
+    EnvironmentalCategory EffectCategory = "environmental"
+    MysticalCategory    EffectCategory = "mystical"
+)
+
+type NonCombatEffectModifier struct {
+    Type        ModifierType `json:"type"`
+    Target      string       `json:"target"`      // "primary", "derived", "custom"
+    Stat        string       `json:"stat"`        // Stat name
+    Value       float64      `json:"value"`       // Modifier value
+    Multiplier  float64      `json:"multiplier"`  // Multiplier (default 1.0)
+    Addition    float64      `json:"addition"`    // Addition (default 0.0)
+    Conditions  []EffectCondition `json:"conditions"`
+}
+
+type ModifierType string
+const (
+    MultiplierModifier ModifierType = "multiplier"
+    AdditionModifier   ModifierType = "addition"
+    OverrideModifier   ModifierType = "override"
+    CapModifier        ModifierType = "cap"
+)
+
+type EffectCondition struct {
+    Type      string      `json:"type"`
+    Variable  string      `json:"variable"`
+    Operator  string      `json:"operator"`
+    Value     interface{} `json:"value"`
 }
 ```
 
