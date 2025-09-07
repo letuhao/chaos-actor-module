@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"actor-core-v2/services/monitoring"
+	"actor-core/services/monitoring"
 )
 
 func TestNewPerformanceMonitor(t *testing.T) {
@@ -678,7 +678,7 @@ func TestIsAlertEnabled(t *testing.T) {
 	}
 }
 
-func TestGetVersion(t *testing.T) {
+func TestPerformanceMonitorGetVersion(t *testing.T) {
 	pm := monitoring.NewPerformanceMonitor()
 
 	if pm.GetVersion() != 1 {
@@ -692,7 +692,7 @@ func TestGetVersion(t *testing.T) {
 	}
 }
 
-func TestGetUpdatedAt(t *testing.T) {
+func TestPerformanceMonitorGetUpdatedAt(t *testing.T) {
 	pm := monitoring.NewPerformanceMonitor()
 	originalUpdatedAt := pm.GetUpdatedAt()
 
@@ -706,7 +706,7 @@ func TestGetUpdatedAt(t *testing.T) {
 	}
 }
 
-func TestGetCreatedAt(t *testing.T) {
+func TestPerformanceMonitorGetCreatedAt(t *testing.T) {
 	pm := monitoring.NewPerformanceMonitor()
 
 	if pm.GetCreatedAt() == 0 {
@@ -714,7 +714,7 @@ func TestGetCreatedAt(t *testing.T) {
 	}
 }
 
-func TestClone(t *testing.T) {
+func TestPerformanceMonitorClone(t *testing.T) {
 	pm := monitoring.NewPerformanceMonitor()
 	pm.SetMetric("test_metric", 100.5, "ms", "performance", "Test metric")
 	pm.SetThreshold("test_metric", 150.0)
@@ -758,7 +758,7 @@ func TestClone(t *testing.T) {
 	}
 }
 
-func TestReset(t *testing.T) {
+func TestPerformanceMonitorReset(t *testing.T) {
 	pm := monitoring.NewPerformanceMonitor()
 	pm.SetMetric("test_metric", 100.5, "ms", "performance", "Test metric")
 	pm.SetThreshold("test_metric", 150.0)

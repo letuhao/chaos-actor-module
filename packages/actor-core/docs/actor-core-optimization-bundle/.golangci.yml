@@ -1,0 +1,17 @@
+run:
+  timeout: 5m
+linters:
+  enable:
+    - govet
+    - errcheck
+    - ineffassign
+    - staticcheck
+    - gosimple
+    - gosec
+    - dupl
+    - gocritic
+issues:
+  exclude-rules:
+    - linters: [dupl]
+      path: tests/.*
+      text: "duplicate"

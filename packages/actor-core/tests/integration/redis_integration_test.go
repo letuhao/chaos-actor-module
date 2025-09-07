@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"actor-core-v2/services/cache"
+	"actor-core/services/cache"
 )
 
 func TestRedisConnection(t *testing.T) {

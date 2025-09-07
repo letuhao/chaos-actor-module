@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/chaos-actor-module/packages/actor-core/models/effects"
+	"actor-core/models/effects"
 )
 
 // EffectManager defines the interface for managing non-combat effects

@@ -3,7 +3,7 @@ package core
 import (
 	"time"
 
-	"actor-core-v2/constants"
+	"actor-core/constants"
 )
 
 // DerivedStats represents the derived stats of an actor

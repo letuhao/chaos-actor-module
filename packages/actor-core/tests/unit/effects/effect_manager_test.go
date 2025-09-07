@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"actor-core-v2/models/effects"
-	effectservices "actor-core-v2/services/effects"
+	"actor-core/models/effects"
+	effectservices "actor-core/services/effects"
 )
 
 func TestEffectManagerImpl_ApplyEffect(t *testing.T) {

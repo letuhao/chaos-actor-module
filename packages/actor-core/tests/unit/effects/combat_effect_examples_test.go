@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"actor-core-v2/models/effects"
+	"actor-core/models/effects"
 )
 
 func TestCombatInjuryEffect(t *testing.T) {

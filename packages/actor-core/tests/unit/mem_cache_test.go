@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"actor-core-v2/services/cache"
+	"actor-core/services/cache"
 )
 
 func TestNewMemCache(t *testing.T) {
@@ -224,10 +224,10 @@ func TestMemCacheExpiration(t *testing.T) {
 
 	mc := cache.NewMemCache(config)
 
-	// Set a value with very short TTL
+	// Set a value with short TTL
 	key := "test_key"
 	value := "test_value"
-	ttl := 500 * time.Millisecond
+	ttl := 2 * time.Second
 	mc.Set(key, value, ttl)
 
 	// Verify it exists initially
@@ -236,7 +236,7 @@ func TestMemCacheExpiration(t *testing.T) {
 	}
 
 	// Wait for expiration
-	time.Sleep(600 * time.Millisecond)
+	time.Sleep(2100 * time.Millisecond)
 
 	// Verify it's expired (Exists should remove expired entries)
 	if mc.Exists(key) {

@@ -1,70 +1,131 @@
-# Actor Core v2.0 - Makefile
-
-.PHONY: help test-redis test-redis-integration test-redis-script clean-redis docker-redis docker-redis-stop
+.PHONY: build test lint race bench clean install-tools ci
 
 # Default target
-help:
-	@echo "Actor Core v2.0 - Available Commands:"
-	@echo "====================================="
-	@echo "test-redis              - Run Redis integration tests"
-	@echo "test-redis-integration  - Run Redis integration tests (verbose)"
-	@echo "test-redis-script       - Run Redis test script"
-	@echo "docker-redis            - Start Redis with Docker"
-	@echo "docker-redis-stop       - Stop Redis Docker container"
-	@echo "clean-redis             - Clean Redis test data"
-	@echo "help                    - Show this help message"
+all: build test lint race
 
-# Test Redis connection and basic operations
-test-redis:
-	@echo "🚀 Testing Redis (Memurai) Connection..."
-	@go test ./tests/integration/redis_integration_test.go -v -run TestRedisConnection
-
-# Test Redis integration tests
-test-redis-integration:
-	@echo "🚀 Running Redis Integration Tests..."
-	@go test ./tests/integration/redis_integration_test.go -v
-
-# Run Redis test script
-test-redis-script:
-	@echo "🚀 Running Redis Test Script..."
-	@go run ./scripts/test_redis.go
-
-# Clean Redis test data
-clean-redis:
-	@echo "🧹 Cleaning Redis test data..."
-	@go run -c 'package main; import "actor-core-v2/tests/integration"; func main() { helper := integration.NewRedisTestHelper(); helper.ClearAll() }'
-
-# Test all cache systems
-test-cache:
-	@echo "🚀 Testing All Cache Systems..."
-	@go test ./tests/unit/mem_cache_test.go -v
-	@go test ./tests/unit/state_tracker_test.go -v
-	@go test ./tests/integration/redis_integration_test.go -v
-
-# Build all
+# Build the project
 build:
-	@echo "🔨 Building Actor Core v2.0..."
-	@go build ./...
+	@echo "🔨 Building..."
+	go build ./...
 
-# Run all tests
+# Run tests
 test:
-	@echo "🧪 Running All Tests..."
-	@go test ./... -v
+	@echo "🧪 Running tests..."
+	go test ./tests/... -v
 
-# Start Redis with Docker
-docker-redis:
-	@echo "🐳 Starting Redis with Docker..."
-	@docker-compose up -d redis
-	@echo "✅ Redis started! Run 'make test-redis-script' to test"
+# Run tests with race detection
+race:
+	@echo "🏃 Running race detection..."
+	go test -race ./tests/...
 
-# Stop Redis Docker container
-docker-redis-stop:
-	@echo "🐳 Stopping Redis Docker container..."
-	@docker-compose down
-	@echo "✅ Redis stopped!"
+# Run benchmarks
+bench:
+	@echo "⚡ Running benchmarks..."
+	go test -bench=. -benchmem ./tests/benchmark/...
 
-# Clean build artifacts
+# Run benchmarks and save results
+bench-save:
+	@echo "⚡ Running benchmarks and saving results..."
+	go test -bench=. -benchmem ./tests/benchmark/... > benchmark_results.txt
+	@echo "📊 Results saved to benchmark_results.txt"
+
+# Run benchmarks with comparison
+bench-compare:
+	@echo "⚡ Running benchmarks with comparison..."
+	go test -bench=. -benchmem ./tests/benchmark/... > benchmark_new.txt
+	@if [ -f benchmark_old.txt ]; then \
+		benchstat benchmark_old.txt benchmark_new.txt; \
+	else \
+		benchstat benchmark_new.txt; \
+	fi
+
+# Run linting
+lint:
+	@echo "🔍 Running linter..."
+	golangci-lint run
+
+# Install required tools
+install-tools:
+	@echo "📦 Installing tools..."
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	go install gotest.tools/gotestsum@latest
+	go install golang.org/x/perf/cmd/benchstat@latest
+
+# Run CI pipeline
+ci: build lint test race bench
+
+# Clean generated files
 clean:
-	@echo "🧹 Cleaning build artifacts..."
-	@go clean -cache
-	@go mod tidy
+	@echo "🧹 Cleaning..."
+	go clean
+	rm -f benchmark_results.txt benchmark_old.txt benchmark_new.txt
+
+# Run specific benchmark
+bench-stat-resolver:
+	@echo "⚡ Running StatResolver benchmarks..."
+	go test -bench=BenchmarkStatResolver -benchmem ./tests/benchmark/...
+
+bench-cache:
+	@echo "⚡ Running Cache benchmarks..."
+	go test -bench=BenchmarkMemCache -benchmem ./tests/benchmark/...
+
+bench-performance-monitor:
+	@echo "⚡ Running PerformanceMonitor benchmarks..."
+	go test -bench=BenchmarkPerformanceMonitor -benchmem ./tests/benchmark/...
+
+bench-formula-pipeline:
+	@echo "⚡ Running FormulaPipeline benchmarks..."
+	go test -bench=BenchmarkFormulaPipeline -benchmem ./tests/benchmark/...
+
+# Run tests with coverage
+test-coverage:
+	@echo "🧪 Running tests with coverage..."
+	go test -coverprofile=coverage.out ./tests/...
+	go tool cover -html=coverage.out -o coverage.html
+	@echo "📊 Coverage report generated: coverage.html"
+
+# Run specific test package
+test-unit:
+	@echo "🧪 Running unit tests..."
+	go test ./tests/unit/... -v
+
+test-golden:
+	@echo "🧪 Running golden tests..."
+	go test ./tests/golden/... -v
+
+test-property:
+	@echo "🧪 Running property tests..."
+	go test ./tests/property/... -v
+
+test-race:
+	@echo "🧪 Running race tests..."
+	go test ./tests/race/... -v
+
+test-parity:
+	@echo "🧪 Running parity tests..."
+	go test ./tests/parity/... -v
+
+# Help
+help:
+	@echo "Available targets:"
+	@echo "  build          - Build the project"
+	@echo "  test           - Run all tests"
+	@echo "  race           - Run tests with race detection"
+	@echo "  bench          - Run benchmarks"
+	@echo "  bench-save     - Run benchmarks and save results"
+	@echo "  bench-compare  - Run benchmarks with comparison"
+	@echo "  lint           - Run linter"
+	@echo "  install-tools  - Install required tools"
+	@echo "  ci             - Run full CI pipeline"
+	@echo "  clean          - Clean generated files"
+	@echo "  test-coverage  - Run tests with coverage report"
+	@echo "  test-unit      - Run unit tests only"
+	@echo "  test-golden    - Run golden tests only"
+	@echo "  test-property  - Run property tests only"
+	@echo "  test-race      - Run race tests only"
+	@echo "  test-parity    - Run parity tests only"
+	@echo "  bench-stat-resolver     - Run StatResolver benchmarks"
+	@echo "  bench-cache            - Run Cache benchmarks"
+	@echo "  bench-performance-monitor - Run PerformanceMonitor benchmarks"
+	@echo "  bench-formula-pipeline - Run FormulaPipeline benchmarks"
+	@echo "  help           - Show this help message"

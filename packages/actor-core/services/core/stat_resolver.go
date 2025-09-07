@@ -3,16 +3,18 @@ package core
 import (
 	"context"
 	"fmt"
+	"sync"
 
-	"actor-core-v2/constants"
-	"actor-core-v2/models/core"
+	"actor-core/constants"
+	"actor-core/models/core"
 )
 
 // StatResolver implements the StatResolver interface
 type StatResolver struct {
 	formulas map[string]Formula
 	cache    map[string]float64
-	version  int64
+	mu       sync.RWMutex
+	version  int64 // FormulaRegistryVersion
 }
 
 // Formula represents a stat calculation formula
@@ -65,502 +67,508 @@ func NewStatResolver() *StatResolver {
 	return sr
 }
 
+// generateCacheKey creates a versioned cache key
+func (sr *StatResolver) generateCacheKey(statName string, primary *core.PrimaryCore) string {
+	// For now, use simple versioned key. In production, could include hash of primary stats
+	return fmt.Sprintf("stat:%s:v%d", statName, sr.version)
+}
+
 // initializeDefaultFormulas initializes default calculation formulas
 func (sr *StatResolver) initializeDefaultFormulas() {
 	// HPMax formula: Vitality * 10 + Constitution * 5
-	sr.formulas["hp_max"] = &BasicFormula{
-		Name:         "hp_max",
-		Type:         "calculation",
-		Dependencies: []string{"vitality", "constitution"},
+	sr.formulas[constants.Stat_HP_MAX] = &BasicFormula{
+		Name:         constants.Stat_HP_MAX,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_VITALITY, constants.Stat_CONSTITUTION},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return float64(primary.Vitality)*constants.HPMaxVitalityMultiplier + float64(primary.Constitution)*constants.HPMaxConstitutionMultiplier
 		},
 	}
 
 	// Stamina formula: Endurance * 10 + Constitution * 3
-	sr.formulas["stamina"] = &BasicFormula{
-		Name:         "stamina",
-		Type:         "calculation",
-		Dependencies: []string{"endurance", "constitution"},
+	sr.formulas[constants.Stat_STAMINA] = &BasicFormula{
+		Name:         constants.Stat_STAMINA,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_ENDURANCE, constants.Stat_CONSTITUTION},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return float64(float64(primary.Endurance)*constants.StaminaEnduranceMultiplier + float64(primary.Constitution)*constants.StaminaConstitutionMultiplier)
 		},
 	}
 
 	// Speed formula: Agility * 0.1
-	sr.formulas["speed"] = &BasicFormula{
-		Name:         "speed",
-		Type:         "calculation",
-		Dependencies: []string{"agility"},
+	sr.formulas[constants.Stat_SPEED] = &BasicFormula{
+		Name:         constants.Stat_SPEED,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_AGILITY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return float64(primary.Agility) * constants.SpeedAgilityMultiplier
 		},
 	}
 
 	// Haste formula: 1.0 + Agility * 0.01
-	sr.formulas["haste"] = &BasicFormula{
-		Name:         "haste",
-		Type:         "calculation",
-		Dependencies: []string{"agility"},
+	sr.formulas[constants.Stat_HASTE] = &BasicFormula{
+		Name:         constants.Stat_HASTE,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_AGILITY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.HasteBaseValue + float64(primary.Agility)*constants.HasteAgilityMultiplier
 		},
 	}
 
 	// CritChance formula: 0.05 + Luck * 0.001
-	sr.formulas["crit_chance"] = &BasicFormula{
-		Name:         "crit_chance",
-		Type:         "calculation",
-		Dependencies: []string{"luck"},
+	sr.formulas[constants.Stat_CRIT_CHANCE] = &BasicFormula{
+		Name:         constants.Stat_CRIT_CHANCE,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_LUCK},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.CritChanceBaseValue + float64(primary.Luck)*constants.CritChanceLuckMultiplier
 		},
 	}
 
 	// CritMulti formula: 1.5 + Luck * 0.01
-	sr.formulas["crit_multi"] = &BasicFormula{
-		Name:         "crit_multi",
-		Type:         "calculation",
-		Dependencies: []string{"luck"},
+	sr.formulas[constants.Stat_CRIT_MULTI] = &BasicFormula{
+		Name:         constants.Stat_CRIT_MULTI,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_LUCK},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.CritMultiBaseValue + float64(primary.Luck)*constants.CritMultiLuckMultiplier
 		},
 	}
 
 	// MoveSpeed formula: Agility * 0.1
-	sr.formulas["move_speed"] = &BasicFormula{
-		Name:         "move_speed",
-		Type:         "calculation",
-		Dependencies: []string{"agility"},
+	sr.formulas[constants.Stat_MOVE_SPEED] = &BasicFormula{
+		Name:         constants.Stat_MOVE_SPEED,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_AGILITY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return float64(primary.Agility) * constants.SpeedAgilityMultiplier
 		},
 	}
 
 	// RegenHP formula: Vitality * 0.01
-	sr.formulas["regen_hp"] = &BasicFormula{
-		Name:         "regen_hp",
-		Type:         "calculation",
-		Dependencies: []string{"vitality"},
+	sr.formulas[constants.Stat_REGEN_HP] = &BasicFormula{
+		Name:         constants.Stat_REGEN_HP,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_VITALITY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return float64(primary.Vitality) * constants.RegenHPVitalityMultiplier
 		},
 	}
 
 	// Accuracy formula: 0.8 + Intelligence * 0.01
-	sr.formulas["accuracy"] = &BasicFormula{
-		Name:         "accuracy",
-		Type:         "calculation",
-		Dependencies: []string{"intelligence"},
+	sr.formulas[constants.Stat_ACCURACY] = &BasicFormula{
+		Name:         constants.Stat_ACCURACY,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_INTELLIGENCE},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.AccuracyBaseValue + float64(primary.Intelligence)*constants.AccuracyIntelligenceMultiplier
 		},
 	}
 
 	// Penetration formula: Strength * 0.01
-	sr.formulas["penetration"] = &BasicFormula{
-		Name:         "penetration",
-		Type:         "calculation",
-		Dependencies: []string{"strength"},
+	sr.formulas[constants.Stat_PENETRATION] = &BasicFormula{
+		Name:         constants.Stat_PENETRATION,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_STRENGTH},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return float64(primary.Strength) * constants.PenetrationStrengthMultiplier
 		},
 	}
 
 	// Lethality formula: (Strength + Agility) * 0.005
-	sr.formulas["lethality"] = &BasicFormula{
-		Name:         "lethality",
-		Type:         "calculation",
-		Dependencies: []string{"strength", "agility"},
+	sr.formulas[constants.Stat_LETHALITY] = &BasicFormula{
+		Name:         constants.Stat_LETHALITY,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_STRENGTH, constants.Stat_AGILITY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return float64(primary.Strength+primary.Agility) * constants.LethalityStrengthAgilityMultiplier
 		},
 	}
 
 	// Brutality formula: Strength * 0.01
-	sr.formulas["brutality"] = &BasicFormula{
-		Name:         "brutality",
-		Type:         "calculation",
-		Dependencies: []string{"strength"},
+	sr.formulas[constants.Stat_BRUTALITY] = &BasicFormula{
+		Name:         constants.Stat_BRUTALITY,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_STRENGTH},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return float64(primary.Strength) * constants.PenetrationStrengthMultiplier
 		},
 	}
 
 	// ArmorClass formula: 10.0 + Constitution * 0.5
-	sr.formulas["armor_class"] = &BasicFormula{
-		Name:         "armor_class",
-		Type:         "calculation",
-		Dependencies: []string{"constitution"},
+	sr.formulas[constants.Stat_ARMOR_CLASS] = &BasicFormula{
+		Name:         constants.Stat_ARMOR_CLASS,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_CONSTITUTION},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.ArmorClassBaseValue + float64(primary.Constitution)*constants.ArmorClassConstitutionMultiplier
 		},
 	}
 
 	// Evasion formula: Agility * 0.01
-	sr.formulas["evasion"] = &BasicFormula{
-		Name:         "evasion",
-		Type:         "calculation",
-		Dependencies: []string{"agility"},
+	sr.formulas[constants.Stat_EVASION] = &BasicFormula{
+		Name:         constants.Stat_EVASION,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_AGILITY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return float64(primary.Agility) * constants.EvasionAgilityMultiplier
 		},
 	}
 
 	// BlockChance formula: Constitution * 0.005
-	sr.formulas["block_chance"] = &BasicFormula{
-		Name:         "block_chance",
-		Type:         "calculation",
-		Dependencies: []string{"constitution"},
+	sr.formulas[constants.Stat_BLOCK_CHANCE] = &BasicFormula{
+		Name:         constants.Stat_BLOCK_CHANCE,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_CONSTITUTION},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return float64(primary.Constitution) * constants.BlockChanceConstitutionMultiplier
 		},
 	}
 
 	// ParryChance formula: Agility * 0.005
-	sr.formulas["parry_chance"] = &BasicFormula{
-		Name:         "parry_chance",
-		Type:         "calculation",
-		Dependencies: []string{"agility"},
+	sr.formulas[constants.Stat_PARRY_CHANCE] = &BasicFormula{
+		Name:         constants.Stat_PARRY_CHANCE,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_AGILITY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return float64(primary.Agility) * constants.ParryChanceAgilityMultiplier
 		},
 	}
 
 	// DodgeChance formula: Agility * 0.01
-	sr.formulas["dodge_chance"] = &BasicFormula{
-		Name:         "dodge_chance",
-		Type:         "calculation",
-		Dependencies: []string{"agility"},
+	sr.formulas[constants.Stat_DODGE_CHANCE] = &BasicFormula{
+		Name:         constants.Stat_DODGE_CHANCE,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_AGILITY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return float64(primary.Agility) * constants.EvasionAgilityMultiplier
 		},
 	}
 
 	// EnergyEfficiency formula: 1.0 + Intelligence * 0.01
-	sr.formulas["energy_efficiency"] = &BasicFormula{
-		Name:         "energy_efficiency",
-		Type:         "calculation",
-		Dependencies: []string{"intelligence"},
+	sr.formulas[constants.Stat_ENERGY_EFFICIENCY] = &BasicFormula{
+		Name:         constants.Stat_ENERGY_EFFICIENCY,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_INTELLIGENCE},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.EnergyEfficiencyBaseValue + float64(primary.Intelligence)*constants.EnergyEfficiencyIntelligenceMultiplier
 		},
 	}
 
 	// EnergyCapacity formula: SpiritualEnergy + PhysicalEnergy + MentalEnergy
-	sr.formulas["energy_capacity"] = &BasicFormula{
-		Name:         "energy_capacity",
-		Type:         "calculation",
-		Dependencies: []string{"spiritual_energy", "physical_energy", "mental_energy"},
+	sr.formulas[constants.Stat_ENERGY_CAPACITY] = &BasicFormula{
+		Name:         constants.Stat_ENERGY_CAPACITY,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_SPIRITUAL_ENERGY, constants.Stat_PHYSICAL_ENERGY, constants.Stat_MENTAL_ENERGY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return float64(primary.SpiritualEnergy + primary.PhysicalEnergy + primary.MentalEnergy)
 		},
 	}
 
 	// EnergyDrain formula: Willpower * 0.01
-	sr.formulas["energy_drain"] = &BasicFormula{
-		Name:         "energy_drain",
-		Type:         "calculation",
-		Dependencies: []string{"willpower"},
+	sr.formulas[constants.Stat_ENERGY_DRAIN] = &BasicFormula{
+		Name:         constants.Stat_ENERGY_DRAIN,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_WILLPOWER},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return float64(primary.Willpower) * constants.EnergyDrainWillpowerMultiplier
 		},
 	}
 
 	// ResourceRegen formula: Vitality * 0.01
-	sr.formulas["resource_regen"] = &BasicFormula{
-		Name:         "resource_regen",
-		Type:         "calculation",
-		Dependencies: []string{"vitality"},
+	sr.formulas[constants.Stat_RESOURCE_REGEN] = &BasicFormula{
+		Name:         constants.Stat_RESOURCE_REGEN,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_VITALITY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return float64(primary.Vitality) * constants.RegenHPVitalityMultiplier
 		},
 	}
 
 	// LearningRate formula: 1.0 + Intelligence * 0.01
-	sr.formulas["learning_rate"] = &BasicFormula{
-		Name:         "learning_rate",
-		Type:         "calculation",
-		Dependencies: []string{"intelligence"},
+	sr.formulas[constants.Stat_LEARNING_RATE] = &BasicFormula{
+		Name:         constants.Stat_LEARNING_RATE,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_INTELLIGENCE},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.EnergyEfficiencyBaseValue + float64(primary.Intelligence)*constants.EnergyEfficiencyIntelligenceMultiplier
 		},
 	}
 
 	// Adaptation formula: 1.0 + Wisdom * 0.01
-	sr.formulas["adaptation"] = &BasicFormula{
-		Name:         "adaptation",
-		Type:         "calculation",
-		Dependencies: []string{"wisdom"},
+	sr.formulas[constants.Stat_ADAPTATION] = &BasicFormula{
+		Name:         constants.Stat_ADAPTATION,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_WISDOM},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.AdaptationBaseValue + float64(primary.Wisdom)*constants.AdaptationWisdomMultiplier
 		},
 	}
 
 	// Memory formula: 1.0 + Intelligence * 0.01
-	sr.formulas["memory"] = &BasicFormula{
-		Name:         "memory",
-		Type:         "calculation",
-		Dependencies: []string{"intelligence"},
+	sr.formulas[constants.Stat_MEMORY] = &BasicFormula{
+		Name:         constants.Stat_MEMORY,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_INTELLIGENCE},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.EnergyEfficiencyBaseValue + float64(primary.Intelligence)*constants.EnergyEfficiencyIntelligenceMultiplier
 		},
 	}
 
 	// Experience formula: 1.0 + Wisdom * 0.01
-	sr.formulas["experience"] = &BasicFormula{
-		Name:         "experience",
-		Type:         "calculation",
-		Dependencies: []string{"wisdom"},
+	sr.formulas[constants.Stat_EXPERIENCE] = &BasicFormula{
+		Name:         constants.Stat_EXPERIENCE,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_WISDOM},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.AdaptationBaseValue + float64(primary.Wisdom)*constants.AdaptationWisdomMultiplier
 		},
 	}
 
 	// Leadership formula: 1.0 + Charisma * 0.01
-	sr.formulas["leadership"] = &BasicFormula{
-		Name:         "leadership",
-		Type:         "calculation",
-		Dependencies: []string{"charisma"},
+	sr.formulas[constants.Stat_LEADERSHIP] = &BasicFormula{
+		Name:         constants.Stat_LEADERSHIP,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_CHARISMA},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.LeadershipBaseValue + float64(primary.Charisma)*constants.LeadershipCharismaMultiplier
 		},
 	}
 
 	// Diplomacy formula: 1.0 + (Charisma + Intelligence) * 0.005
-	sr.formulas["diplomacy"] = &BasicFormula{
-		Name:         "diplomacy",
-		Type:         "calculation",
-		Dependencies: []string{"charisma", "intelligence"},
+	sr.formulas[constants.Stat_DIPLOMACY] = &BasicFormula{
+		Name:         constants.Stat_DIPLOMACY,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_CHARISMA, constants.Stat_INTELLIGENCE},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.DiplomacyBaseValue + float64(primary.Charisma+primary.Intelligence)*constants.DiplomacyCharismaIntelligenceMultiplier
 		},
 	}
 
 	// Intimidation formula: 1.0 + (Strength + Charisma) * 0.005
-	sr.formulas["intimidation"] = &BasicFormula{
-		Name:         "intimidation",
-		Type:         "calculation",
-		Dependencies: []string{"strength", "charisma"},
+	sr.formulas[constants.Stat_INTIMIDATION] = &BasicFormula{
+		Name:         constants.Stat_INTIMIDATION,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_STRENGTH, constants.Stat_CHARISMA},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.IntimidationBaseValue + float64(primary.Strength+primary.Charisma)*constants.IntimidationStrengthCharismaMultiplier
 		},
 	}
 
 	// Empathy formula: 1.0 + (Wisdom + Charisma) * 0.005
-	sr.formulas["empathy"] = &BasicFormula{
-		Name:         "empathy",
-		Type:         "calculation",
-		Dependencies: []string{"wisdom", "charisma"},
+	sr.formulas[constants.Stat_EMPATHY] = &BasicFormula{
+		Name:         constants.Stat_EMPATHY,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_WISDOM, constants.Stat_CHARISMA},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.EmpathyBaseValue + float64(primary.Wisdom+primary.Charisma)*constants.EmpathyWisdomCharismaMultiplier
 		},
 	}
 
 	// Deception formula: 1.0 + (Intelligence + Charisma) * 0.005
-	sr.formulas["deception"] = &BasicFormula{
-		Name:         "deception",
-		Type:         "calculation",
-		Dependencies: []string{"intelligence", "charisma"},
+	sr.formulas[constants.Stat_DECEPTION] = &BasicFormula{
+		Name:         constants.Stat_DECEPTION,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_INTELLIGENCE, constants.Stat_CHARISMA},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.DeceptionBaseValue + float64(primary.Intelligence+primary.Charisma)*constants.DeceptionIntelligenceCharismaMultiplier
 		},
 	}
 
 	// Performance formula: 1.0 + Charisma * 0.01
-	sr.formulas["performance"] = &BasicFormula{
-		Name:         "performance",
-		Type:         "calculation",
-		Dependencies: []string{"charisma"},
+	sr.formulas[constants.Stat_PERFORMANCE] = &BasicFormula{
+		Name:         constants.Stat_PERFORMANCE,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_CHARISMA},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.LeadershipBaseValue + float64(primary.Charisma)*constants.LeadershipCharismaMultiplier
 		},
 	}
 
 	// ManaEfficiency formula: 1.0 + Intelligence * 0.01
-	sr.formulas["mana_efficiency"] = &BasicFormula{
-		Name:         "mana_efficiency",
-		Type:         "calculation",
-		Dependencies: []string{"intelligence"},
+	sr.formulas[constants.Stat_MANA_EFFICIENCY] = &BasicFormula{
+		Name:         constants.Stat_MANA_EFFICIENCY,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_INTELLIGENCE},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.EnergyEfficiencyBaseValue + float64(primary.Intelligence)*constants.EnergyEfficiencyIntelligenceMultiplier
 		},
 	}
 
 	// SpellPower formula: 1.0 + SpiritualEnergy * 0.01
-	sr.formulas["spell_power"] = &BasicFormula{
-		Name:         "spell_power",
-		Type:         "calculation",
-		Dependencies: []string{"spiritual_energy"},
+	sr.formulas[constants.Stat_SPELL_POWER] = &BasicFormula{
+		Name:         constants.Stat_SPELL_POWER,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_SPIRITUAL_ENERGY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.SpellPowerBaseValue + float64(primary.SpiritualEnergy)*constants.SpellPowerSpiritualEnergyMultiplier
 		},
 	}
 
 	// MysticResonance formula: 1.0 + (SpiritualEnergy + MentalEnergy) * 0.005
-	sr.formulas["mystic_resonance"] = &BasicFormula{
-		Name:         "mystic_resonance",
-		Type:         "calculation",
-		Dependencies: []string{"spiritual_energy", "mental_energy"},
+	sr.formulas[constants.Stat_MYSTIC_RESONANCE] = &BasicFormula{
+		Name:         constants.Stat_MYSTIC_RESONANCE,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_SPIRITUAL_ENERGY, constants.Stat_MENTAL_ENERGY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.MysticResonanceBaseValue + float64(primary.SpiritualEnergy+primary.MentalEnergy)*constants.MysticResonanceSpiritualMentalMultiplier
 		},
 	}
 
 	// RealityBend formula: 1.0 + MentalEnergy * 0.01
-	sr.formulas["reality_bend"] = &BasicFormula{
-		Name:         "reality_bend",
-		Type:         "calculation",
-		Dependencies: []string{"mental_energy"},
+	sr.formulas[constants.Stat_REALITY_BEND] = &BasicFormula{
+		Name:         constants.Stat_REALITY_BEND,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_MENTAL_ENERGY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.RealityBendBaseValue + float64(primary.MentalEnergy)*constants.RealityBendMentalEnergyMultiplier
 		},
 	}
 
 	// TimeSense formula: 1.0 + MentalEnergy * 0.01
-	sr.formulas["time_sense"] = &BasicFormula{
-		Name:         "time_sense",
-		Type:         "calculation",
-		Dependencies: []string{"mental_energy"},
+	sr.formulas[constants.Stat_TIME_SENSE] = &BasicFormula{
+		Name:         constants.Stat_TIME_SENSE,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_MENTAL_ENERGY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.RealityBendBaseValue + float64(primary.MentalEnergy)*constants.RealityBendMentalEnergyMultiplier
 		},
 	}
 
 	// SpaceSense formula: 1.0 + MentalEnergy * 0.01
-	sr.formulas["space_sense"] = &BasicFormula{
-		Name:         "space_sense",
-		Type:         "calculation",
-		Dependencies: []string{"mental_energy"},
+	sr.formulas[constants.Stat_SPACE_SENSE] = &BasicFormula{
+		Name:         constants.Stat_SPACE_SENSE,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_MENTAL_ENERGY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.RealityBendBaseValue + float64(primary.MentalEnergy)*constants.RealityBendMentalEnergyMultiplier
 		},
 	}
 
 	// JumpHeight formula: 1.0 + (Strength + Agility) * 0.005
-	sr.formulas["jump_height"] = &BasicFormula{
-		Name:         "jump_height",
-		Type:         "calculation",
-		Dependencies: []string{"strength", "agility"},
+	sr.formulas[constants.Stat_JUMP_HEIGHT] = &BasicFormula{
+		Name:         constants.Stat_JUMP_HEIGHT,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_STRENGTH, constants.Stat_AGILITY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.JumpHeightBaseValue + float64(primary.Strength+primary.Agility)*constants.JumpHeightStrengthAgilityMultiplier
 		},
 	}
 
 	// ClimbSpeed formula: 1.0 + (Strength + Agility) * 0.005
-	sr.formulas["climb_speed"] = &BasicFormula{
-		Name:         "climb_speed",
-		Type:         "calculation",
-		Dependencies: []string{"strength", "agility"},
+	sr.formulas[constants.Stat_CLIMB_SPEED] = &BasicFormula{
+		Name:         constants.Stat_CLIMB_SPEED,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_STRENGTH, constants.Stat_AGILITY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.JumpHeightBaseValue + float64(primary.Strength+primary.Agility)*constants.JumpHeightStrengthAgilityMultiplier
 		},
 	}
 
 	// SwimSpeed formula: 1.0 + (Strength + Agility) * 0.005
-	sr.formulas["swim_speed"] = &BasicFormula{
-		Name:         "swim_speed",
-		Type:         "calculation",
-		Dependencies: []string{"strength", "agility"},
+	sr.formulas[constants.Stat_SWIM_SPEED] = &BasicFormula{
+		Name:         constants.Stat_SWIM_SPEED,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_STRENGTH, constants.Stat_AGILITY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.JumpHeightBaseValue + float64(primary.Strength+primary.Agility)*constants.JumpHeightStrengthAgilityMultiplier
 		},
 	}
 
 	// FlightSpeed formula: 1.0 + SpiritualEnergy * 0.01
-	sr.formulas["flight_speed"] = &BasicFormula{
-		Name:         "flight_speed",
-		Type:         "calculation",
-		Dependencies: []string{"spiritual_energy"},
+	sr.formulas[constants.Stat_FLIGHT_SPEED] = &BasicFormula{
+		Name:         constants.Stat_FLIGHT_SPEED,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_SPIRITUAL_ENERGY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.SpellPowerBaseValue + float64(primary.SpiritualEnergy)*constants.SpellPowerSpiritualEnergyMultiplier
 		},
 	}
 
 	// TeleportRange formula: 1.0 + MentalEnergy * 0.01
-	sr.formulas["teleport_range"] = &BasicFormula{
-		Name:         "teleport_range",
-		Type:         "calculation",
-		Dependencies: []string{"mental_energy"},
+	sr.formulas[constants.Stat_TELEPORT_RANGE] = &BasicFormula{
+		Name:         constants.Stat_TELEPORT_RANGE,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_MENTAL_ENERGY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.RealityBendBaseValue + float64(primary.MentalEnergy)*constants.RealityBendMentalEnergyMultiplier
 		},
 	}
 
 	// Stealth formula: 1.0 + Agility * 0.01
-	sr.formulas["stealth"] = &BasicFormula{
-		Name:         "stealth",
-		Type:         "calculation",
-		Dependencies: []string{"agility"},
+	sr.formulas[constants.Stat_STEALTH] = &BasicFormula{
+		Name:         constants.Stat_STEALTH,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_AGILITY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.HasteBaseValue + float64(primary.Agility)*constants.HasteAgilityMultiplier
 		},
 	}
 
 	// AuraRadius formula: 1.0 + SpiritualEnergy * 0.01
-	sr.formulas["aura_radius"] = &BasicFormula{
-		Name:         "aura_radius",
-		Type:         "calculation",
-		Dependencies: []string{"spiritual_energy"},
+	sr.formulas[constants.Stat_AURA_RADIUS] = &BasicFormula{
+		Name:         constants.Stat_AURA_RADIUS,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_SPIRITUAL_ENERGY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.SpellPowerBaseValue + float64(primary.SpiritualEnergy)*constants.SpellPowerSpiritualEnergyMultiplier
 		},
 	}
 
 	// AuraStrength formula: 1.0 + SpiritualEnergy * 0.01
-	sr.formulas["aura_strength"] = &BasicFormula{
-		Name:         "aura_strength",
-		Type:         "calculation",
-		Dependencies: []string{"spiritual_energy"},
+	sr.formulas[constants.Stat_AURA_STRENGTH] = &BasicFormula{
+		Name:         constants.Stat_AURA_STRENGTH,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_SPIRITUAL_ENERGY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.SpellPowerBaseValue + float64(primary.SpiritualEnergy)*constants.SpellPowerSpiritualEnergyMultiplier
 		},
 	}
 
 	// Presence formula: 1.0 + (Charisma + SpiritualEnergy) * 0.005
-	sr.formulas["presence"] = &BasicFormula{
-		Name:         "presence",
-		Type:         "calculation",
-		Dependencies: []string{"charisma", "spiritual_energy"},
+	sr.formulas[constants.Stat_PRESENCE] = &BasicFormula{
+		Name:         constants.Stat_PRESENCE,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_CHARISMA, constants.Stat_SPIRITUAL_ENERGY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.PresenceBaseValue + float64(primary.Charisma+primary.SpiritualEnergy)*constants.PresenceCharismaSpiritualMultiplier
 		},
 	}
 
 	// Awe formula: 1.0 + (Charisma + SpiritualEnergy) * 0.005
-	sr.formulas["awe"] = &BasicFormula{
-		Name:         "awe",
-		Type:         "calculation",
-		Dependencies: []string{"charisma", "spiritual_energy"},
+	sr.formulas[constants.Stat_AWE] = &BasicFormula{
+		Name:         constants.Stat_AWE,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_CHARISMA, constants.Stat_SPIRITUAL_ENERGY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.PresenceBaseValue + float64(primary.Charisma+primary.SpiritualEnergy)*constants.PresenceCharismaSpiritualMultiplier
 		},
 	}
 
 	// WeaponMastery formula: 1.0 + (Strength + Agility) * 0.005
-	sr.formulas["weapon_mastery"] = &BasicFormula{
-		Name:         "weapon_mastery",
-		Type:         "calculation",
-		Dependencies: []string{"strength", "agility"},
+	sr.formulas[constants.Stat_WEAPON_MASTERY] = &BasicFormula{
+		Name:         constants.Stat_WEAPON_MASTERY,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_STRENGTH, constants.Stat_AGILITY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.JumpHeightBaseValue + float64(primary.Strength+primary.Agility)*constants.JumpHeightStrengthAgilityMultiplier
 		},
 	}
 
 	// SkillLevel formula: 1.0 + Intelligence * 0.01
-	sr.formulas["skill_level"] = &BasicFormula{
-		Name:         "skill_level",
-		Type:         "calculation",
-		Dependencies: []string{"intelligence"},
+	sr.formulas[constants.Stat_SKILL_LEVEL] = &BasicFormula{
+		Name:         constants.Stat_SKILL_LEVEL,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_INTELLIGENCE},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.EnergyEfficiencyBaseValue + float64(primary.Intelligence)*constants.EnergyEfficiencyIntelligenceMultiplier
 		},
 	}
 
 	// LifeSteal formula: 0.0 (default)
-	sr.formulas["life_steal"] = &BasicFormula{
-		Name:         "life_steal",
-		Type:         "calculation",
+	sr.formulas[constants.Stat_LIFE_STEAL] = &BasicFormula{
+		Name:         constants.Stat_LIFE_STEAL,
+		Type:         constants.FormulaTypeCalculation,
 		Dependencies: []string{},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.LifeStealDefaultValue
@@ -568,110 +576,110 @@ func (sr *StatResolver) initializeDefaultFormulas() {
 	}
 
 	// CastSpeed formula: 1.0 + Intelligence * 0.01
-	sr.formulas["cast_speed"] = &BasicFormula{
-		Name:         "cast_speed",
-		Type:         "calculation",
-		Dependencies: []string{"intelligence"},
+	sr.formulas[constants.Stat_CAST_SPEED] = &BasicFormula{
+		Name:         constants.Stat_CAST_SPEED,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_INTELLIGENCE},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.EnergyEfficiencyBaseValue + float64(primary.Intelligence)*constants.EnergyEfficiencyIntelligenceMultiplier
 		},
 	}
 
 	// WeightCapacity formula: Strength * 10.0
-	sr.formulas["weight_capacity"] = &BasicFormula{
-		Name:         "weight_capacity",
-		Type:         "calculation",
-		Dependencies: []string{"strength"},
+	sr.formulas[constants.Stat_WEIGHT_CAPACITY] = &BasicFormula{
+		Name:         constants.Stat_WEIGHT_CAPACITY,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_STRENGTH},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return float64(primary.Strength) * constants.WeightCapacityStrengthMultiplier
 		},
 	}
 
 	// Persuasion formula: 1.0 + Charisma * 0.01
-	sr.formulas["persuasion"] = &BasicFormula{
-		Name:         "persuasion",
-		Type:         "calculation",
-		Dependencies: []string{"charisma"},
+	sr.formulas[constants.Stat_PERSUASION] = &BasicFormula{
+		Name:         constants.Stat_PERSUASION,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_CHARISMA},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.LeadershipBaseValue + float64(primary.Charisma)*constants.LeadershipCharismaMultiplier
 		},
 	}
 
 	// MerchantPriceModifier formula: 1.0 + Charisma * 0.01
-	sr.formulas["merchant_price_modifier"] = &BasicFormula{
-		Name:         "merchant_price_modifier",
-		Type:         "calculation",
-		Dependencies: []string{"charisma"},
+	sr.formulas[constants.Stat_MERCHANT_PRICE_MODIFIER] = &BasicFormula{
+		Name:         constants.Stat_MERCHANT_PRICE_MODIFIER,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_CHARISMA},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.LeadershipBaseValue + float64(primary.Charisma)*constants.LeadershipCharismaMultiplier
 		},
 	}
 
 	// FactionReputationGain formula: 1.0 + Charisma * 0.01
-	sr.formulas["faction_reputation_gain"] = &BasicFormula{
-		Name:         "faction_reputation_gain",
-		Type:         "calculation",
-		Dependencies: []string{"charisma"},
+	sr.formulas[constants.Stat_FACTION_REPUTATION_GAIN] = &BasicFormula{
+		Name:         constants.Stat_FACTION_REPUTATION_GAIN,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_CHARISMA},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.LeadershipBaseValue + float64(primary.Charisma)*constants.LeadershipCharismaMultiplier
 		},
 	}
 
 	// CultivationSpeed formula: 1.0 + (SpiritualEnergy + PhysicalEnergy + MentalEnergy) * 0.001
-	sr.formulas["cultivation_speed"] = &BasicFormula{
-		Name:         "cultivation_speed",
-		Type:         "calculation",
-		Dependencies: []string{"spiritual_energy", "physical_energy", "mental_energy"},
+	sr.formulas[constants.Stat_CULTIVATION_SPEED] = &BasicFormula{
+		Name:         constants.Stat_CULTIVATION_SPEED,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_SPIRITUAL_ENERGY, constants.Stat_PHYSICAL_ENERGY, constants.Stat_MENTAL_ENERGY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.CultivationSpeedBaseValue + float64(primary.SpiritualEnergy+primary.PhysicalEnergy+primary.MentalEnergy)*constants.CultivationSpeedAllEnergyMultiplier
 		},
 	}
 
 	// EnergyEfficiencyAmp formula: 1.0 + Intelligence * 0.01
-	sr.formulas["energy_efficiency_amp"] = &BasicFormula{
-		Name:         "energy_efficiency_amp",
-		Type:         "calculation",
-		Dependencies: []string{"intelligence"},
+	sr.formulas[constants.Stat_ENERGY_EFFICIENCY_AMP] = &BasicFormula{
+		Name:         constants.Stat_ENERGY_EFFICIENCY_AMP,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_INTELLIGENCE},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.EnergyEfficiencyBaseValue + float64(primary.Intelligence)*constants.EnergyEfficiencyIntelligenceMultiplier
 		},
 	}
 
 	// BreakthroughSuccess formula: 1.0 + (Willpower + Luck) * 0.005
-	sr.formulas["breakthrough_success"] = &BasicFormula{
-		Name:         "breakthrough_success",
-		Type:         "calculation",
-		Dependencies: []string{"willpower", "luck"},
+	sr.formulas[constants.Stat_BREAKTHROUGH_SUCCESS] = &BasicFormula{
+		Name:         constants.Stat_BREAKTHROUGH_SUCCESS,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_WILLPOWER, constants.Stat_LUCK},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.BreakthroughSuccessBaseValue + float64(primary.Willpower+primary.Luck)*constants.BreakthroughSuccessWillpowerLuckMultiplier
 		},
 	}
 
 	// SkillLearning formula: 1.0 + (Intelligence + Wisdom) * 0.005
-	sr.formulas["skill_learning"] = &BasicFormula{
-		Name:         "skill_learning",
-		Type:         "calculation",
-		Dependencies: []string{"intelligence", "wisdom"},
+	sr.formulas[constants.Stat_SKILL_LEARNING] = &BasicFormula{
+		Name:         constants.Stat_SKILL_LEARNING,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_INTELLIGENCE, constants.Stat_WISDOM},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.SkillLearningBaseValue + float64(primary.Intelligence+primary.Wisdom)*constants.SkillLearningIntelligenceWisdomMultiplier
 		},
 	}
 
 	// CombatEffectiveness formula: 1.0 + (Strength + Agility + Intelligence) * 0.003
-	sr.formulas["combat_effectiveness"] = &BasicFormula{
-		Name:         "combat_effectiveness",
-		Type:         "calculation",
-		Dependencies: []string{"strength", "agility", "intelligence"},
+	sr.formulas[constants.Stat_COMBAT_EFFECTIVENESS] = &BasicFormula{
+		Name:         constants.Stat_COMBAT_EFFECTIVENESS,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_STRENGTH, constants.Stat_AGILITY, constants.Stat_INTELLIGENCE},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.CombatEffectivenessBaseValue + float64(primary.Strength+primary.Agility+primary.Intelligence)*constants.CombatEffectivenessStrengthAgilityIntelligenceMultiplier
 		},
 	}
 
 	// ResourceGathering formula: 1.0 + (Luck + Wisdom) * 0.005
-	sr.formulas["resource_gathering"] = &BasicFormula{
-		Name:         "resource_gathering",
-		Type:         "calculation",
-		Dependencies: []string{"luck", "wisdom"},
+	sr.formulas[constants.Stat_RESOURCE_GATHERING] = &BasicFormula{
+		Name:         constants.Stat_RESOURCE_GATHERING,
+		Type:         constants.FormulaTypeCalculation,
+		Dependencies: []string{constants.Stat_LUCK, constants.Stat_WISDOM},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return constants.ResourceGatheringBaseValue + float64(primary.Luck+primary.Wisdom)*constants.ResourceGatheringLuckWisdomMultiplier
 		},
@@ -682,8 +690,16 @@ func (sr *StatResolver) initializeDefaultFormulas() {
 func (sr *StatResolver) ResolveStats(primaryStats *core.PrimaryCore) (*core.DerivedStats, error) {
 	derivedStats := core.NewDerivedStats()
 
+	// Get formulas with read lock
+	sr.mu.RLock()
+	formulas := make(map[string]Formula)
+	for name, formula := range sr.formulas {
+		formulas[name] = formula
+	}
+	sr.mu.RUnlock()
+
 	// Calculate all derived stats using formulas
-	for statName, formula := range sr.formulas {
+	for statName, formula := range formulas {
 		value := formula.Calculate(primaryStats)
 
 		// Set the calculated value
@@ -691,11 +707,17 @@ func (sr *StatResolver) ResolveStats(primaryStats *core.PrimaryCore) (*core.Deri
 			return nil, fmt.Errorf("failed to set stat %s: %w", statName, err)
 		}
 
-		// Cache the result
+		// Cache the result with write lock
+		sr.mu.Lock()
 		sr.cache[statName] = value
+		sr.mu.Unlock()
 	}
 
+	// Increment version with write lock
+	sr.mu.Lock()
 	sr.version++
+	sr.mu.Unlock()
+
 	return derivedStats, nil
 }
 
@@ -713,15 +735,28 @@ func (sr *StatResolver) ResolveStatsWithContext(ctx context.Context, primaryStat
 
 // ResolveStat resolves a specific stat
 func (sr *StatResolver) ResolveStat(statName string, primaryStats *core.PrimaryCore) (float64, error) {
+	// Generate versioned cache key
+	cacheKey := sr.generateCacheKey(statName, primaryStats)
+
+	// Check cache first
+	if value, exists := sr.getCachedValue(cacheKey); exists {
+		return value, nil
+	}
+
+	// Get formula with read lock
+	sr.mu.RLock()
 	formula, exists := sr.formulas[statName]
+	sr.mu.RUnlock()
+
 	if !exists {
 		return constants.LifeStealDefaultValue, fmt.Errorf("formula for stat %s not found", statName)
 	}
 
+	// Calculate value
 	value := formula.Calculate(primaryStats)
 
-	// Cache the result
-	sr.cache[statName] = value
+	// Cache the result with write lock
+	sr.setCachedValue(cacheKey, value)
 
 	return value, nil
 }
@@ -835,15 +870,15 @@ func (sr *StatResolver) ValidateStats(stats map[string]float64) error {
 
 		// Add more validation rules as needed
 		switch statName {
-		case "crit_chance":
+		case constants.Stat_CRIT_CHANCE:
 			if value > constants.MaxCritChanceValue {
 				return fmt.Errorf("crit_chance cannot exceed %f: %f", constants.MaxCritChanceValue, value)
 			}
-		case "crit_multi":
+		case constants.Stat_CRIT_MULTI:
 			if value < constants.MinCritMultiValue {
 				return fmt.Errorf("crit_multi cannot be less than %f: %f", constants.MinCritMultiValue, value)
 			}
-		case "haste":
+		case constants.Stat_HASTE:
 			if value < constants.MinHasteValue {
 				return fmt.Errorf("haste cannot be less than %f: %f", constants.MinHasteValue, value)
 			}
@@ -875,6 +910,9 @@ func (sr *StatResolver) AddFormula(formula Formula) error {
 		return fmt.Errorf("formula name cannot be empty")
 	}
 
+	sr.mu.Lock()
+	defer sr.mu.Unlock()
+
 	sr.formulas[formula.GetName()] = formula
 	sr.version++
 
@@ -883,6 +921,9 @@ func (sr *StatResolver) AddFormula(formula Formula) error {
 
 // RemoveFormula removes a formula
 func (sr *StatResolver) RemoveFormula(statName string) error {
+	sr.mu.Lock()
+	defer sr.mu.Unlock()
+
 	if _, exists := sr.formulas[statName]; !exists {
 		return fmt.Errorf("formula for stat %s not found", statName)
 	}
@@ -896,6 +937,9 @@ func (sr *StatResolver) RemoveFormula(statName string) error {
 
 // GetFormula gets a formula
 func (sr *StatResolver) GetFormula(statName string) (Formula, error) {
+	sr.mu.RLock()
+	defer sr.mu.RUnlock()
+
 	formula, exists := sr.formulas[statName]
 	if !exists {
 		return nil, fmt.Errorf("formula for stat %s not found", statName)
@@ -906,6 +950,9 @@ func (sr *StatResolver) GetFormula(statName string) (Formula, error) {
 
 // GetAllFormulas returns all formulas
 func (sr *StatResolver) GetAllFormulas() map[string]Formula {
+	sr.mu.RLock()
+	defer sr.mu.RUnlock()
+
 	result := make(map[string]Formula)
 	for name, formula := range sr.formulas {
 		result[name] = formula
@@ -915,12 +962,31 @@ func (sr *StatResolver) GetAllFormulas() map[string]Formula {
 
 // ClearCache clears the calculation cache
 func (sr *StatResolver) ClearCache() {
+	sr.mu.Lock()
+	defer sr.mu.Unlock()
 	sr.cache = make(map[string]float64)
 }
 
 // GetCacheSize returns the cache size
 func (sr *StatResolver) GetCacheSize() int {
+	sr.mu.RLock()
+	defer sr.mu.RUnlock()
 	return len(sr.cache)
+}
+
+// getCachedValue gets a value from cache with read lock
+func (sr *StatResolver) getCachedValue(key string) (float64, bool) {
+	sr.mu.RLock()
+	defer sr.mu.RUnlock()
+	value, exists := sr.cache[key]
+	return value, exists
+}
+
+// setCachedValue sets a value in cache with write lock
+func (sr *StatResolver) setCachedValue(key string, value float64) {
+	sr.mu.Lock()
+	defer sr.mu.Unlock()
+	sr.cache[key] = value
 }
 
 // GetVersion returns the current version

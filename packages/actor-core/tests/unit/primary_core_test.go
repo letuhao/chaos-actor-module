@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"actor-core-v2/models/core"
+	"actor-core/models/core"
 )
 
 func TestNewPrimaryCore(t *testing.T) {

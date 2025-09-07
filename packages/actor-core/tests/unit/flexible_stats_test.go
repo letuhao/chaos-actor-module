@@ -4,7 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"actor-core-v2/models/flexible"
+	"actor-core/constants"
+	"actor-core/models/flexible"
 )
 
 func TestNewFlexibleStats(t *testing.T) {
@@ -292,7 +293,7 @@ func TestGetAllCustomPrimary(t *testing.T) {
 
 	// Test with stats
 	fs.SetCustomPrimary("strength", 100)
-	fs.SetCustomPrimary("agility", 80)
+	fs.SetCustomPrimary(constants.Stat_AGILITY, 80)
 
 	stats = fs.GetAllCustomPrimary()
 	if len(stats) != 2 {
@@ -303,7 +304,7 @@ func TestGetAllCustomPrimary(t *testing.T) {
 		t.Errorf("Expected strength to be 100, got %d", stats["strength"])
 	}
 
-	if stats["agility"] != 80 {
+	if stats[constants.Stat_AGILITY] != 80 {
 		t.Errorf("Expected agility to be 80, got %d", stats["agility"])
 	}
 }
@@ -368,7 +369,7 @@ func TestGetAllSubSystems(t *testing.T) {
 	}
 }
 
-func TestGetStatsCount(t *testing.T) {
+func TestFlexibleStatsGetStatsCount(t *testing.T) {
 	fs := flexible.NewFlexibleStats()
 
 	// Test empty stats
@@ -401,7 +402,7 @@ func TestGetCustomPrimaryCount(t *testing.T) {
 
 	// Test with stats
 	fs.SetCustomPrimary("strength", 100)
-	fs.SetCustomPrimary("agility", 80)
+	fs.SetCustomPrimary(constants.Stat_AGILITY, 80)
 
 	count = fs.GetCustomPrimaryCount()
 	if count != 2 {
@@ -534,7 +535,7 @@ func TestClearCustomPrimary(t *testing.T) {
 
 	// Test clearing with stats
 	fs.SetCustomPrimary("strength", 100)
-	fs.SetCustomPrimary("agility", 80)
+	fs.SetCustomPrimary(constants.Stat_AGILITY, 80)
 	fs.ClearCustomPrimary()
 
 	if len(fs.CustomPrimary) != 0 {
@@ -616,7 +617,7 @@ func TestClearAll(t *testing.T) {
 	}
 }
 
-func TestClone(t *testing.T) {
+func TestFlexibleStatsClone(t *testing.T) {
 	fs := flexible.NewFlexibleStats()
 	fs.SetCustomPrimary("strength", 100)
 	fs.SetCustomDerived("damage", 150.5)
@@ -644,7 +645,7 @@ func TestClone(t *testing.T) {
 	}
 }
 
-func TestMerge(t *testing.T) {
+func TestFlexibleStatsMerge(t *testing.T) {
 	fs1 := flexible.NewFlexibleStats()
 	fs1.SetCustomPrimary("strength", 100)
 	fs1.SetCustomDerived("damage", 150.5)
@@ -662,7 +663,7 @@ func TestMerge(t *testing.T) {
 		t.Errorf("Expected strength to be 100, got %d", fs1.CustomPrimary["strength"])
 	}
 
-	if fs1.CustomPrimary["agility"] != 80 {
+	if fs1.CustomPrimary[constants.Stat_AGILITY] != 80 {
 		t.Errorf("Expected agility to be 80, got %d", fs1.CustomPrimary["agility"])
 	}
 
@@ -688,7 +689,7 @@ func TestMerge(t *testing.T) {
 	}
 }
 
-func TestToJSON(t *testing.T) {
+func TestFlexibleStatsToJSON(t *testing.T) {
 	fs := flexible.NewFlexibleStats()
 	fs.SetCustomPrimary("strength", 100)
 	fs.SetCustomDerived("damage", 150.5)
@@ -704,7 +705,7 @@ func TestToJSON(t *testing.T) {
 	}
 }
 
-func TestFromJSON(t *testing.T) {
+func TestFlexibleStatsFromJSON(t *testing.T) {
 	fs := flexible.NewFlexibleStats()
 	fs.SetCustomPrimary("strength", 100)
 	fs.SetCustomDerived("damage", 150.5)
@@ -735,7 +736,7 @@ func TestFromJSON(t *testing.T) {
 	}
 }
 
-func TestGetVersion(t *testing.T) {
+func TestFlexibleStatsGetVersion(t *testing.T) {
 	fs := flexible.NewFlexibleStats()
 
 	if fs.GetVersion() != 1 {
@@ -749,7 +750,7 @@ func TestGetVersion(t *testing.T) {
 	}
 }
 
-func TestGetUpdatedAt(t *testing.T) {
+func TestFlexibleStatsGetUpdatedAt(t *testing.T) {
 	fs := flexible.NewFlexibleStats()
 	originalUpdatedAt := fs.GetUpdatedAt()
 
@@ -763,7 +764,7 @@ func TestGetUpdatedAt(t *testing.T) {
 	}
 }
 
-func TestGetCreatedAt(t *testing.T) {
+func TestFlexibleStatsGetCreatedAt(t *testing.T) {
 	fs := flexible.NewFlexibleStats()
 
 	if fs.GetCreatedAt() == 0 {
@@ -771,7 +772,7 @@ func TestGetCreatedAt(t *testing.T) {
 	}
 }
 
-func TestValidate(t *testing.T) {
+func TestFlexibleStatsValidate(t *testing.T) {
 	fs := flexible.NewFlexibleStats()
 
 	// Test valid stats

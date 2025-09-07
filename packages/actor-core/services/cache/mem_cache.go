@@ -135,26 +135,29 @@ func (mc *MemCache) Clear() error {
 // Exists checks if a key exists in cache
 func (mc *MemCache) Exists(key string) bool {
 	mc.mutex.RLock()
-	defer mc.mutex.RUnlock()
-
 	entry, exists := mc.data[key]
 	if !exists {
+		mc.mutex.RUnlock()
 		return false
 	}
 
 	// Check if expired
-	if entry.ExpiresAt > 0 && time.Now().Unix() >= entry.ExpiresAt {
-		// Key is expired, remove it
+	now := time.Now().Unix()
+	if entry.ExpiresAt > 0 && now >= entry.ExpiresAt {
 		mc.mutex.RUnlock()
+		// Key is expired, remove it with write lock
 		mc.mutex.Lock()
-		delete(mc.data, key)
-		mc.stats.Size -= entry.Size
-		mc.stats.Evictions++
+		// Double-check after acquiring write lock
+		if entry, stillExists := mc.data[key]; stillExists && entry.ExpiresAt > 0 && now >= entry.ExpiresAt {
+			delete(mc.data, key)
+			mc.stats.Size -= entry.Size
+			mc.stats.Evictions++
+		}
 		mc.mutex.Unlock()
-		mc.mutex.RLock()
 		return false
 	}
 
+	mc.mutex.RUnlock()
 	return true
 }
 

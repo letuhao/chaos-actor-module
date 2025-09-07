@@ -1,0 +1,19 @@
+version: 1
+stats:
+  primary:
+    - key: vitality
+    - key: constitution
+    - key: agility
+  derived:
+    - key: hp_max
+      display: Maximum Health
+      clamp: {min: 1, max: 1000000}
+      formula:
+        flat: ["vitality * 10", "constitution * 5"]
+        mult: ["1 + mastery_hp * 0.02"]
+    - key: move_speed
+      display: Movement Speed
+      clamp: {min: 0, max: 100}
+      formula:
+        flat: ["agility * 0.1"]
+        mult: []

@@ -1,0 +1,116 @@
+# 02 — Codebase Walkthrough
+
+## Directory map (trimmed)
+```
+- ./
+- constants/
+  - derived_stats.go
+  - error_codes.go
+  - flexible_systems.go
+  - formula_constants.go
+  - primary_stats.go
+  - system_config.go
+- docs/
+  - docs/actor-core-interface/
+    - docs/actor-core-interface/packages/
+      - docs/actor-core-interface/packages/actor-core/
+  - docs/cursor-fix-bundle/
+- enums/
+  - enums/category/
+  - enums/clamp/
+    - clamp_type.go
+  - enums/formula/
+    - formula_type.go
+  - enums/stat/
+    - data_type.go
+    - stat_category.go
+    - stat_type.go
+  - enums/type/
+    - type_category.go
+  - enums/validation/
+    - validation_severity.go
+    - validation_type.go
+- interfaces/
+  - interfaces/cache/
+    - cache_interface.go
+  - interfaces/configuration/
+    - config_manager.go
+  - interfaces/core/
+    - stat_consumer.go
+    - stat_provider.go
+    - stat_resolver.go
+  - interfaces/effects/
+    - effect_manager.go
+  - interfaces/flexible/
+    - karma_interface.go
+    - speed_interface.go
+  - interfaces/monitoring/
+    - performance_monitor.go
+- models/
+  - models/configuration/
+  - models/core/
+    - derived_stats.go
+    - errors.go
+    - primary_core.go
+  - models/effects/
+    - combat_effect.go
+    - combat_effect_examples.go
+    - effect_examples.go
+    - non_combat_effect.go
+  - models/flexible/
+    - flexible_stats.go
+- scripts/
+  - simple_redis.go
+  - simple_redis_test.go
+  - test_redis.go
+- services/
+  - services/cache/
+    - mem_cache.go
+    - redis_cache.go
+    - state_tracker.go
+    - types.go
+  - services/configuration/
+    - config_manager.go
+  - services/core/
+    - stat_resolver.go
+  - services/effects/
+    - combat_effect_manager.go
+    - effect_manager.go
+  - services/flexible/
+  - services/monitoring/
+    - performance_monitor.go
+- tests/
+  - tests/integration/
+    - redis_helper.go
+    - redis_integration_test.go
+  - tests/performance/
+  - tests/unit/
+    - config_manager_test.go
+    - derived_stats_test.go
+    - flexible_stats_test.go
+    - mem_cache_test.go
+    - performance_monitor_test.go
+    - primary_core_test.go
+    - stat_resolver_test.go
+    - state_tracker_test.go
+    - tests/unit/effects/
+      - combat_effect_examples_test.go
+      - combat_effect_manager_test.go
+      - combat_effect_test.go
+      - effect_examples_test.go
+      - effect_manager_test.go
+      - non_combat_effect_test.go
+- utils/
+  - utils/cache/
+  - utils/calculation/
+  - utils/validation/
+```
+
+## Key modules
+- `services/core/stat_resolver.go`: formula registry, dependency order, resolve API.
+- `models/core/*`: `PrimaryCore` (inputs) and `DerivedStats` (outputs).
+- `constants/*`: stat keys, display names, formula constants, system config.
+- `services/cache/*`: in-memory and Redis caches.
+- `services/configuration/*`: config manager for constants and runtime switches.
+- `services/monitoring/*`: performance metrics, alerts.
+- `interfaces/core/*`: public surface for resolver & snapshots.

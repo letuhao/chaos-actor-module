@@ -1,7 +1,7 @@
 package effects
 
 import (
-	"actor-core-v2/models/effects"
+	"actor-core/models/effects"
 	"context"
 	"fmt"
 	"sync"

@@ -1,0 +1,529 @@
+version: 1
+stats:
+  primary:
+    - key: vitality
+      display: Vitality
+      description: Physical strength and endurance
+    - key: constitution
+      display: Constitution
+      description: Physical resilience and health
+    - key: agility
+      display: Agility
+      description: Speed and dexterity
+    - key: intelligence
+      display: Intelligence
+      description: Mental capacity and reasoning
+    - key: wisdom
+      display: Wisdom
+      description: Insight and spiritual awareness
+    - key: charisma
+      display: Charisma
+      description: Social influence and leadership
+    - key: luck
+      display: Luck
+      description: Fortune and chance
+    - key: karma
+      display: Karma
+      description: Spiritual balance and destiny
+    - key: endurance
+      display: Endurance
+      description: Physical stamina and endurance
+    - key: strength
+      display: Strength
+      description: Physical power and muscle strength
+    - key: spiritual_energy
+      display: Spiritual Energy
+      description: Spiritual cultivation energy
+    - key: physical_energy
+      display: Physical Energy
+      description: Physical cultivation energy
+    - key: mental_energy
+      display: Mental Energy
+      description: Mental cultivation energy
+    - key: willpower
+      display: Willpower
+      description: Mental strength and determination
+  derived:
+    - key: hp_max
+      display: Maximum Health
+      description: Maximum health points
+      clamp: {min: 1, max: 1000000}
+      formula:
+        flat: ["vitality * 10", "constitution * 5"]
+        mult: ["1 + mastery_hp * 0.02"]
+    - key: move_speed
+      display: Movement Speed
+      description: How fast the character moves
+      clamp: {min: 0, max: 100}
+      formula:
+        flat: ["agility * 0.1"]
+        mult: []
+    - key: mana_max
+      display: Maximum Mana
+      description: Maximum magical energy
+      clamp: {min: 0, max: 1000000}
+      formula:
+        flat: ["intelligence * 8", "wisdom * 4"]
+        mult: ["1 + mastery_mana * 0.03"]
+    - key: stamina_max
+      display: Maximum Stamina
+      description: Physical endurance capacity
+      clamp: {min: 0, max: 1000000}
+      formula:
+        flat: ["vitality * 6", "constitution * 8"]
+        mult: ["1 + mastery_stamina * 0.02"]
+    - key: attack_power
+      display: Attack Power
+      description: Physical damage potential
+      clamp: {min: 0, max: 100000}
+      formula:
+        flat: ["vitality * 2", "agility * 1.5"]
+        mult: ["1 + mastery_attack * 0.05"]
+    - key: magic_power
+      display: Magic Power
+      description: Magical damage potential
+      clamp: {min: 0, max: 100000}
+      formula:
+        flat: ["intelligence * 3", "wisdom * 2"]
+        mult: ["1 + mastery_magic * 0.04"]
+    - key: defense
+      display: Defense
+      description: Physical damage resistance
+      clamp: {min: 0, max: 10000}
+      formula:
+        flat: ["constitution * 1.5", "agility * 0.5"]
+        mult: ["1 + mastery_defense * 0.03"]
+    - key: magic_resistance
+      display: Magic Resistance
+      description: Magical damage resistance
+      clamp: {min: 0, max: 10000}
+      formula:
+        flat: ["wisdom * 2", "intelligence * 1"]
+        mult: ["1 + mastery_magic_resist * 0.03"]
+    - key: critical_chance
+      display: Critical Chance
+      description: Chance to deal critical damage
+      clamp: {min: 0, max: 1}
+      formula:
+        flat: ["agility * 0.001", "luck * 0.002"]
+        mult: ["1 + mastery_crit * 0.01"]
+    - key: critical_damage
+      display: Critical Damage
+      description: Multiplier for critical hits
+      clamp: {min: 1, max: 10}
+      formula:
+        flat: ["2.0"]
+        mult: ["1 + mastery_crit_damage * 0.02"]
+    - key: stamina
+      display: Stamina
+      description: Current stamina points
+      clamp: {min: 0, max: 1000000}
+      formula:
+        flat: ["endurance * 10", "constitution * 3"]
+        mult: []
+    - key: speed
+      display: Speed
+      description: Base movement speed
+      clamp: {min: 0, max: 100}
+      formula:
+        flat: ["agility * 0.1"]
+        mult: []
+    - key: haste
+      display: Haste
+      description: Speed multiplier
+      clamp: {min: 1, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["agility * 0.01"]
+    - key: regen_hp
+      display: Health Regeneration
+      description: Health points regenerated per second
+      clamp: {min: 0, max: 1000}
+      formula:
+        flat: ["vitality * 0.01"]
+        mult: []
+    - key: lethality
+      display: Lethality
+      description: Critical hit damage multiplier
+      clamp: {min: 1, max: 5}
+      formula:
+        flat: ["1.0"]
+        mult: ["(strength + agility) * 0.005"]
+    - key: armor_class
+      display: Armor Class
+      description: Physical defense rating
+      clamp: {min: 0, max: 10000}
+      formula:
+        flat: ["10.0"]
+        mult: ["constitution * 0.5"]
+    - key: evasion
+      display: Evasion
+      description: Chance to avoid attacks
+      clamp: {min: 0, max: 1}
+      formula:
+        flat: ["0.0"]
+        mult: ["agility * 0.01"]
+    - key: block_chance
+      display: Block Chance
+      description: Chance to block incoming attacks
+      clamp: {min: 0, max: 1}
+      formula:
+        flat: ["0.0"]
+        mult: ["constitution * 0.005"]
+    - key: parry_chance
+      display: Parry Chance
+      description: Chance to parry incoming attacks
+      clamp: {min: 0, max: 1}
+      formula:
+        flat: ["0.0"]
+        mult: ["agility * 0.005"]
+    - key: dodge_chance
+      display: Dodge Chance
+      description: Chance to dodge incoming attacks
+      clamp: {min: 0, max: 1}
+      formula:
+        flat: ["0.0"]
+        mult: ["agility * 0.01"]
+    - key: resource_regen
+      display: Resource Regeneration
+      description: Resource points regenerated per second
+      clamp: {min: 0, max: 1000}
+      formula:
+        flat: ["vitality * 0.01"]
+        mult: []
+    - key: jump_height
+      display: Jump Height
+      description: Maximum jump height
+      clamp: {min: 0, max: 100}
+      formula:
+        flat: ["1.0"]
+        mult: ["(strength + agility) * 0.005"]
+    - key: climb_speed
+      display: Climb Speed
+      description: Speed of climbing
+      clamp: {min: 0, max: 100}
+      formula:
+        flat: ["1.0"]
+        mult: ["(strength + agility) * 0.005"]
+    - key: swim_speed
+      display: Swim Speed
+      description: Speed of swimming
+      clamp: {min: 0, max: 100}
+      formula:
+        flat: ["1.0"]
+        mult: ["(strength + agility) * 0.005"]
+    - key: stealth
+      display: Stealth
+      description: Ability to remain hidden
+      clamp: {min: 0, max: 100}
+      formula:
+        flat: ["1.0"]
+        mult: ["agility * 0.01"]
+    - key: weapon_mastery
+      display: Weapon Mastery
+      description: Proficiency with weapons
+      clamp: {min: 0, max: 100}
+      formula:
+        flat: ["1.0"]
+        mult: ["(strength + agility) * 0.005"]
+    - key: combat_effectiveness
+      display: Combat Effectiveness
+      description: Overall combat ability
+      clamp: {min: 0, max: 100}
+      formula:
+        flat: ["1.0"]
+        mult: ["(strength + agility + intelligence) * 0.003"]
+    - key: crit_chance
+      display: Critical Chance
+      description: Chance to deal critical damage
+      clamp: {min: 0, max: 1}
+      formula:
+        flat: ["0.05"]
+        mult: ["luck * 0.001"]
+    - key: crit_multi
+      display: Critical Multiplier
+      description: Damage multiplier for critical hits
+      clamp: {min: 1, max: 10}
+      formula:
+        flat: ["1.5"]
+        mult: ["luck * 0.01"]
+    - key: accuracy
+      display: Accuracy
+      description: Hit chance for attacks
+      clamp: {min: 0, max: 1}
+      formula:
+        flat: ["0.8"]
+        mult: ["intelligence * 0.01"]
+    - key: penetration
+      display: Penetration
+      description: Armor penetration ability
+      clamp: {min: 0, max: 100}
+      formula:
+        flat: ["0.0"]
+        mult: ["strength * 0.01"]
+    - key: brutality
+      display: Brutality
+      description: Raw damage potential
+      clamp: {min: 0, max: 100}
+      formula:
+        flat: ["0.0"]
+        mult: ["strength * 0.01"]
+    - key: energy_efficiency
+      display: Energy Efficiency
+      description: Energy usage efficiency
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["intelligence * 0.01"]
+    - key: energy_capacity
+      display: Energy Capacity
+      description: Maximum energy storage
+      clamp: {min: 0, max: 1000000}
+      formula:
+        flat: ["0.0"]
+        mult: ["spiritual_energy + physical_energy + mental_energy"]
+    - key: energy_drain
+      display: Energy Drain
+      description: Energy consumption rate
+      clamp: {min: 0, max: 1000}
+      formula:
+        flat: ["0.0"]
+        mult: ["willpower * 0.01"]
+    - key: learning_rate
+      display: Learning Rate
+      description: Speed of learning new skills
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["intelligence * 0.01"]
+    - key: adaptation
+      display: Adaptation
+      description: Ability to adapt to new situations
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["wisdom * 0.01"]
+    - key: memory
+      display: Memory
+      description: Memory capacity and retention
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["intelligence * 0.01"]
+    - key: experience
+      display: Experience
+      description: Experience gain multiplier
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["wisdom * 0.01"]
+    - key: leadership
+      display: Leadership
+      description: Leadership ability
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["charisma * 0.01"]
+    - key: diplomacy
+      display: Diplomacy
+      description: Diplomatic negotiation ability
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["(charisma + intelligence) * 0.005"]
+    - key: intimidation
+      display: Intimidation
+      description: Ability to intimidate others
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["(strength + charisma) * 0.005"]
+    - key: empathy
+      display: Empathy
+      description: Understanding others' emotions
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["(wisdom + charisma) * 0.005"]
+    - key: deception
+      display: Deception
+      description: Ability to deceive others
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["(intelligence + charisma) * 0.005"]
+    - key: performance
+      display: Performance
+      description: Performance and entertainment ability
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["charisma * 0.01"]
+    - key: mana_efficiency
+      display: Mana Efficiency
+      description: Mana usage efficiency
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["intelligence * 0.01"]
+    - key: spell_power
+      display: Spell Power
+      description: Magical spell strength
+      clamp: {min: 0, max: 100}
+      formula:
+        flat: ["1.0"]
+        mult: ["spiritual_energy * 0.01"]
+    - key: mystic_resonance
+      display: Mystic Resonance
+      description: Connection to mystical forces
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["(spiritual_energy + mental_energy) * 0.005"]
+    - key: reality_bend
+      display: Reality Bend
+      description: Ability to bend reality
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["mental_energy * 0.01"]
+    - key: time_sense
+      display: Time Sense
+      description: Perception of time
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["mental_energy * 0.01"]
+    - key: space_sense
+      display: Space Sense
+      description: Perception of space
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["mental_energy * 0.01"]
+    - key: flight_speed
+      display: Flight Speed
+      description: Speed of flight
+      clamp: {min: 0, max: 100}
+      formula:
+        flat: ["1.0"]
+        mult: ["spiritual_energy * 0.01"]
+    - key: teleport_range
+      display: Teleport Range
+      description: Maximum teleportation distance
+      clamp: {min: 0, max: 1000}
+      formula:
+        flat: ["1.0"]
+        mult: ["mental_energy * 0.01"]
+    - key: aura_radius
+      display: Aura Radius
+      description: Radius of spiritual aura
+      clamp: {min: 0, max: 100}
+      formula:
+        flat: ["1.0"]
+        mult: ["spiritual_energy * 0.01"]
+    - key: aura_strength
+      display: Aura Strength
+      description: Strength of spiritual aura
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["spiritual_energy * 0.01"]
+    - key: presence
+      display: Presence
+      description: Spiritual presence
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["(charisma + spiritual_energy) * 0.005"]
+    - key: awe
+      display: Awe
+      description: Ability to inspire awe
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["(charisma + spiritual_energy) * 0.005"]
+    - key: skill_level
+      display: Skill Level
+      description: Overall skill proficiency
+      clamp: {min: 0, max: 100}
+      formula:
+        flat: ["1.0"]
+        mult: ["intelligence * 0.01"]
+    - key: life_steal
+      display: Life Steal
+      description: Life steal percentage
+      clamp: {min: 0, max: 1}
+      formula:
+        flat: ["0.0"]
+        mult: []
+    - key: cast_speed
+      display: Cast Speed
+      description: Speed of spell casting
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["intelligence * 0.01"]
+    - key: weight_capacity
+      display: Weight Capacity
+      description: Maximum carrying weight
+      clamp: {min: 0, max: 10000}
+      formula:
+        flat: ["0.0"]
+        mult: ["strength * 10.0"]
+    - key: persuasion
+      display: Persuasion
+      description: Ability to persuade others
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["charisma * 0.01"]
+    - key: merchant_price_modifier
+      display: Merchant Price Modifier
+      description: Price modification for trading
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["charisma * 0.01"]
+    - key: faction_reputation_gain
+      display: Faction Reputation Gain
+      description: Reputation gain multiplier
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["charisma * 0.01"]
+    - key: cultivation_speed
+      display: Cultivation Speed
+      description: Speed of cultivation progress
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["(spiritual_energy + physical_energy + mental_energy) * 0.001"]
+    - key: energy_efficiency_amp
+      display: Energy Efficiency Amplifier
+      description: Energy efficiency amplification
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["intelligence * 0.01"]
+    - key: breakthrough_success
+      display: Breakthrough Success
+      description: Success rate for breakthroughs
+      clamp: {min: 0, max: 1}
+      formula:
+        flat: ["1.0"]
+        mult: ["(willpower + luck) * 0.005"]
+    - key: skill_learning
+      display: Skill Learning
+      description: Skill learning ability
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["(intelligence + wisdom) * 0.005"]
+    - key: resource_gathering
+      display: Resource Gathering
+      description: Resource gathering efficiency
+      clamp: {min: 0, max: 10}
+      formula:
+        flat: ["1.0"]
+        mult: ["(luck + wisdom) * 0.005"]

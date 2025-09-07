@@ -1,0 +1,60 @@
+run:
+  timeout: 5m
+  modules-download-mode: readonly
+
+linters:
+  enable:
+    - govet
+    - ineffassign
+    - gocritic
+    - gosec
+    - errcheck
+    - dupl
+    - goconst
+    - gocyclo
+    - gofmt
+    - goimports
+    - golint
+    - gomnd
+    - gosimple
+    - staticcheck
+    - typecheck
+    - unused
+    - varcheck
+    - whitespace
+
+linters-settings:
+  gocyclo:
+    min-complexity: 15
+  gomnd:
+    settings:
+      mnd:
+        checks: argument,case,condition,operation,return,assign
+  dupl:
+    threshold: 100
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+    disabled-checks:
+      - dupImport
+      - ifElseChain
+      - octalLiteral
+      - whyNoLint
+      - wrapperFunc
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - dupl
+        - gomnd
+    - path: tools/
+      linters:
+        - gomnd
+        - gocyclo
+  max-issues-per-linter: 0
+  max-same-issues: 0

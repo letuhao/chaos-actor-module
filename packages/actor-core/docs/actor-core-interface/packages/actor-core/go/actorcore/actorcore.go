@@ -11,16 +11,16 @@ type PrimaryCore struct {
 }
 
 type Derived struct {
-	HPMax, MPMax           float64
-	ATK, MAG               float64
-	DEF, RES               float64
-	Haste                  float64
-	CritChance, CritMulti  float64
-	MoveSpeed              float64
-	RegenHP, RegenMP       float64
-	Resists                map[string]float64
-	Amplifiers             map[string]float64
-	Version                uint64
+	HPMax, MPMax          float64
+	ATK, MAG              float64
+	DEF, RES              float64
+	Haste                 float64
+	CritChance, CritMulti float64
+	MoveSpeed             float64
+	RegenHP, RegenMP      float64
+	Resists               map[string]float64
+	Amplifiers            map[string]float64
+	Version               uint64
 }
 
 type CoreContribution struct {
@@ -30,7 +30,10 @@ type CoreContribution struct {
 	Tags    []string
 }
 
-type ResourceState struct { Current, Max, Regen float64; Epoch uint64 }
+type ResourceState struct {
+	Current, Max, Regen float64
+	Epoch               uint64
+}
 type ActorResources map[string]*ResourceState
 
 type ActorCore interface {

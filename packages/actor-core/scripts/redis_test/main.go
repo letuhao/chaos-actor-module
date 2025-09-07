@@ -1,10 +1,10 @@
-package main
+package redis_test
 
 import (
 	"fmt"
 	"log"
 
-	"actor-core-v2/tests/integration"
+	"actor-core/tests/integration"
 )
 
 func main() {

@@ -31,7 +31,7 @@ func main() {
 
 	// Test basic operations
 	fmt.Println("\n2. Testing basic operations...")
-	
+
 	// Set a key
 	err = client.Set(ctx, "test_key", "test_value", 5*time.Minute).Err()
 	if err != nil {
@@ -69,13 +69,13 @@ func main() {
 
 	// Test complex data
 	fmt.Println("\n3. Testing complex data...")
-	
+
 	// Test with JSON data
 	jsonData := map[string]interface{}{
-		"name":    "John Doe",
-		"age":     30,
-		"active":  true,
-		"scores":  []int{85, 92, 78},
+		"name":   "John Doe",
+		"age":    30,
+		"active": true,
+		"scores": []int{85, 92, 78},
 	}
 
 	err = client.Set(ctx, "user:123", jsonData, 5*time.Minute).Err()
@@ -102,27 +102,27 @@ func main() {
 	// Test performance
 	fmt.Println("\n4. Testing performance...")
 	start := time.Now()
-	
+
 	for i := 0; i < 1000; i++ {
 		key := fmt.Sprintf("perf_test_%d", i)
 		value := fmt.Sprintf("value_%d", i)
-		
+
 		// Set
 		err = client.Set(ctx, key, value, 5*time.Minute).Err()
 		if err != nil {
 			log.Fatalf("❌ Failed to set key %s: %v", key, err)
 		}
-		
+
 		// Get
 		_, err = client.Get(ctx, key).Result()
 		if err != nil {
 			log.Fatalf("❌ Failed to get key %s: %v", key, err)
 		}
 	}
-	
+
 	duration := time.Since(start)
 	opsPerSecond := float64(2000) / duration.Seconds()
-	
+
 	fmt.Printf("✅ Performance test completed:\n")
 	fmt.Printf("   Operations: 2000 (set + get)\n")
 	fmt.Printf("   Duration: %v\n", duration)

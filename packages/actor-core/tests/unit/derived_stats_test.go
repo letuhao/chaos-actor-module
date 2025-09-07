@@ -4,7 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"actor-core-v2/models/core"
+	"actor-core/constants"
+	"actor-core/models/core"
 )
 
 func TestNewDerivedStats(t *testing.T) {
@@ -445,11 +446,11 @@ func TestCalculateFromPrimary(t *testing.T) {
 	}
 }
 
-func TestGetStat(t *testing.T) {
+func TestDerivedStatsGetStat(t *testing.T) {
 	ds := core.NewDerivedStats()
 
 	// Test valid stat names
-	stat, err := ds.GetStat("hp_max")
+	stat, err := ds.GetStat(constants.Stat_HP_MAX)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -457,7 +458,7 @@ func TestGetStat(t *testing.T) {
 		t.Errorf("Expected hp_max to be 100.0, got %f", stat)
 	}
 
-	stat, err = ds.GetStat("stamina")
+	stat, err = ds.GetStat(constants.Stat_STAMINA)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -472,11 +473,11 @@ func TestGetStat(t *testing.T) {
 	}
 }
 
-func TestSetStat(t *testing.T) {
+func TestDerivedStatsSetStat(t *testing.T) {
 	ds := core.NewDerivedStats()
 
 	// Test setting a valid stat
-	err := ds.SetStat("hp_max", 200.0)
+	err := ds.SetStat(constants.Stat_HP_MAX, 200.0)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -485,7 +486,7 @@ func TestSetStat(t *testing.T) {
 	}
 
 	// Test setting stamina
-	err = ds.SetStat("stamina", 150.0)
+	err = ds.SetStat(constants.Stat_STAMINA, 150.0)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -505,15 +506,15 @@ func TestSetStat(t *testing.T) {
 	}
 }
 
-func TestGetAllStats(t *testing.T) {
+func TestDerivedStatsGetAllStats(t *testing.T) {
 	ds := core.NewDerivedStats()
 	stats := ds.GetAllStats()
 
 	// Test that all stats are present
 	expectedStats := []string{
-		"hp_max", "stamina", "speed", "haste", "crit_chance", "crit_multi",
-		"move_speed", "regen_hp", "accuracy", "penetration", "lethality",
-		"brutality", "armor_class", "evasion", "block_chance", "parry_chance",
+		constants.Stat_HP_MAX, constants.Stat_STAMINA, constants.Stat_SPEED, constants.Stat_HASTE, "crit_chance", "crit_multi",
+		constants.Stat_MOVE_SPEED, constants.Stat_REGEN_HP, "accuracy", "penetration", constants.Stat_LETHALITY,
+		"brutality", constants.Stat_ARMOR_CLASS, constants.Stat_EVASION, constants.Stat_BLOCK_CHANCE, constants.Stat_PARRY_CHANCE,
 		"dodge_chance", "energy_efficiency", "energy_capacity", "energy_drain",
 		"resource_regen", "resource_decay", "learning_rate", "adaptation",
 		"memory", "experience", "leadership", "diplomacy", "intimidation",
@@ -535,16 +536,16 @@ func TestGetAllStats(t *testing.T) {
 	}
 
 	// Test that values are correct
-	if stats["hp_max"] != 100.0 {
+	if stats[constants.Stat_HP_MAX] != 100.0 {
 		t.Errorf("Expected hp_max to be 100.0, got %f", stats["hp_max"])
 	}
 
-	if stats["stamina"] != 100.0 {
+	if stats[constants.Stat_STAMINA] != 100.0 {
 		t.Errorf("Expected stamina to be 100.0, got %f", stats["stamina"])
 	}
 }
 
-func TestClone(t *testing.T) {
+func TestDerivedStatsClone(t *testing.T) {
 	ds := core.NewDerivedStats()
 	ds.HPMax = 200.0
 	ds.Stamina = 150.0
@@ -572,35 +573,35 @@ func TestClone(t *testing.T) {
 	}
 }
 
-func TestGetVersion(t *testing.T) {
+func TestDerivedStatsGetVersion(t *testing.T) {
 	ds := core.NewDerivedStats()
 
 	if ds.GetVersion() != 1 {
 		t.Errorf("Expected version to be 1, got %d", ds.GetVersion())
 	}
 
-	ds.SetStat("hp_max", 200.0)
+	ds.SetStat(constants.Stat_HP_MAX, 200.0)
 
 	if ds.GetVersion() != 2 {
 		t.Errorf("Expected version to be 2, got %d", ds.GetVersion())
 	}
 }
 
-func TestGetUpdatedAt(t *testing.T) {
+func TestDerivedStatsGetUpdatedAt(t *testing.T) {
 	ds := core.NewDerivedStats()
 	originalUpdatedAt := ds.GetUpdatedAt()
 
 	// Wait a bit to ensure timestamp changes
 	time.Sleep(1 * time.Second)
 
-	ds.SetStat("hp_max", 200.0)
+	ds.SetStat(constants.Stat_HP_MAX, 200.0)
 
 	if ds.GetUpdatedAt() <= originalUpdatedAt {
 		t.Errorf("Expected UpdatedAt to be updated. Original: %d, New: %d", originalUpdatedAt, ds.GetUpdatedAt())
 	}
 }
 
-func TestGetCreatedAt(t *testing.T) {
+func TestDerivedStatsGetCreatedAt(t *testing.T) {
 	ds := core.NewDerivedStats()
 
 	if ds.GetCreatedAt() == 0 {

@@ -4,8 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"actor-core-v2/models/core"
-	coreService "actor-core-v2/services/core"
+	"actor-core/constants"
+	"actor-core/models/core"
+	coreService "actor-core/services/core"
 )
 
 func TestNewStatResolver(t *testing.T) {
@@ -135,7 +136,7 @@ func TestCheckDependencies(t *testing.T) {
 		t.Errorf("Expected no error, got %v", err)
 	}
 
-	expectedDeps := []string{"vitality", "constitution"}
+	expectedDeps := []string{constants.Stat_VITALITY, constants.Stat_CONSTITUTION}
 	if len(deps) != len(expectedDeps) {
 		t.Errorf("Expected %d dependencies, got %d", len(expectedDeps), len(deps))
 	}
@@ -163,7 +164,7 @@ func TestGetCalculationOrder(t *testing.T) {
 		if stat == "hp_max" {
 			hpMaxIndex = i
 		}
-		if stat == "vitality" {
+		if stat == constants.Stat_VITALITY {
 			vitalityIndex = i
 		}
 	}
@@ -216,7 +217,7 @@ func TestAddFormula(t *testing.T) {
 	formula := &coreService.BasicFormula{
 		Name:         "custom_stat",
 		Type:         "calculation",
-		Dependencies: []string{"vitality"},
+		Dependencies: []string{constants.Stat_VITALITY},
 		Calculator: func(primary *core.PrimaryCore) float64 {
 			return float64(primary.Vitality) * 2.0
 		},
@@ -361,7 +362,7 @@ func TestGetCacheSize(t *testing.T) {
 	}
 }
 
-func TestGetVersion(t *testing.T) {
+func TestStatResolverGetVersion(t *testing.T) {
 	sr := coreService.NewStatResolver()
 
 	if sr.GetVersion() != 1 {

@@ -1,0 +1,163 @@
+version: 1
+stats:
+  primary:
+    - key: strength
+    - key: agility
+    - key: vitality
+    - key: intelligence
+    - key: spirit
+    - key: luck
+  derived:
+    - key: hp_max
+      display: Maximum Health
+      clamp: { min: 1, max: 2000000 }
+      formula:
+        flat:
+          - "vitality * 20"
+          - "strength * 5"
+        mult:
+          - "1 + mastery_hp * 0.02"
+    - key: mp_max
+      display: Maximum Mana
+      clamp: { min: 0, max: 2000000 }
+      formula:
+        flat:
+          - "intelligence * 18"
+          - "spirit * 12"
+        mult:
+          - "1 + mastery_mp * 0.02"
+    - key: stamina_max
+      display: Maximum Stamina
+      clamp: { min: 0, max: 100000 }
+      formula:
+        flat:
+          - "vitality * 5"
+          - "agility * 8"
+        mult:
+          - "1 + mastery_stamina * 0.02"
+    - key: attack_power
+      display: Attack Power
+      clamp: { min: 1, max: 1000000 }
+      formula:
+        flat:
+          - "strength * 3"
+          - "agility * 1"
+        mult:
+          - "1 + mastery_attack * 0.03"
+    - key: magic_power
+      display: Magic Power
+      clamp: { min: 0, max: 1000000 }
+      formula:
+        flat:
+          - "intelligence * 3"
+          - "spirit * 1"
+        mult:
+          - "1 + mastery_magic * 0.03"
+    - key: defense
+      display: Defense
+      clamp: { min: 0, max: 500000 }
+      formula:
+        flat:
+          - "vitality * 2"
+          - "strength * 1"
+        mult:
+          - "1 + mastery_defense * 0.02"
+    - key: resist
+      display: Magic Resist
+      clamp: { min: 0, max: 500000 }
+      formula:
+        flat:
+          - "spirit * 2"
+          - "intelligence * 1"
+        mult:
+          - "1 + mastery_resist * 0.02"
+    - key: crit_rate
+      display: Critical Chance
+      clamp: { min: 0, max: 1 }
+      formula:
+        flat:
+          - "luck * 0.001"
+          - "agility * 0.0005"
+        mult: []
+    - key: crit_damage
+      display: Critical Damage Multiplier
+      clamp: { min: 1, max: 3 }
+      formula:
+        flat:
+          - "1.5"
+          - "luck * 0.001"
+        mult: []
+    - key: accuracy
+      display: Accuracy
+      clamp: { min: 0, max: 1 }
+      formula:
+        flat:
+          - "0.7"
+          - "agility * 0.0008"
+          - "luck * 0.0004"
+        mult: []
+    - key: evasion
+      display: Evasion
+      clamp: { min: 0, max: 0.8 }
+      formula:
+        flat:
+          - "agility * 0.0009"
+          - "luck * 0.0003"
+        mult: []
+    - key: block_chance
+      display: Block Chance
+      clamp: { min: 0, max: 0.6 }
+      formula:
+        flat:
+          - "strength * 0.0006"
+          - "vitality * 0.0004"
+        mult: []
+    - key: move_speed
+      display: Movement Speed
+      clamp: { min: 0, max: 12 }
+      formula:
+        flat:
+          - "5"
+          - "agility * 0.01"
+        mult:
+          - "1 + mastery_speed * 0.01"
+    - key: hp_regen
+      display: Health Regen /s
+      clamp: { min: 0, max: 10000 }
+      formula:
+        flat:
+          - "vitality * 0.1"
+          - "spirit * 0.05"
+        mult: []
+    - key: mp_regen
+      display: Mana Regen /s
+      clamp: { min: 0, max: 10000 }
+      formula:
+        flat:
+          - "spirit * 0.12"
+          - "intelligence * 0.08"
+        mult: []
+    - key: stamina_regen
+      display: Stamina Regen /s
+      clamp: { min: 0, max: 10000 }
+      formula:
+        flat:
+          - "vitality * 0.1"
+          - "agility * 0.1"
+        mult: []
+    - key: cooldown_reduction
+      display: Cooldown Reduction
+      clamp: { min: 0, max: 0.5 }
+      formula:
+        flat:
+          - "intelligence * 0.0005"
+          - "spirit * 0.0003"
+        mult: []
+    - key: lifesteal
+      display: Lifesteal
+      clamp: { min: 0, max: 0.3 }
+      formula:
+        flat:
+          - "luck * 0.0004"
+          - "spirit * 0.0002"
+        mult: []

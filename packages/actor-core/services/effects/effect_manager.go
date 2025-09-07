@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"actor-core-v2/models/effects"
+	"actor-core/models/effects"
 )
 
 // EffectConfig contains configuration for the effect manager

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"actor-core-v2/services/cache"
+	"actor-core/services/cache"
 )
 
 // RedisTestHelper provides helper functions for Redis testing

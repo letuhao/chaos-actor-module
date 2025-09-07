@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"actor-core-v2/services/configuration"
+	"actor-core/services/configuration"
 )
 
 func TestNewConfigManager(t *testing.T) {
@@ -657,7 +657,7 @@ func TestGetFilePath(t *testing.T) {
 	}
 }
 
-func TestGetVersion(t *testing.T) {
+func TestConfigManagerGetVersion(t *testing.T) {
 	cm := configuration.NewConfigManager()
 
 	if cm.GetVersion() != 1 {
@@ -671,7 +671,7 @@ func TestGetVersion(t *testing.T) {
 	}
 }
 
-func TestGetUpdatedAt(t *testing.T) {
+func TestConfigManagerGetUpdatedAt(t *testing.T) {
 	cm := configuration.NewConfigManager()
 	originalUpdatedAt := cm.GetUpdatedAt()
 
@@ -685,7 +685,7 @@ func TestGetUpdatedAt(t *testing.T) {
 	}
 }
 
-func TestGetCreatedAt(t *testing.T) {
+func TestConfigManagerGetCreatedAt(t *testing.T) {
 	cm := configuration.NewConfigManager()
 
 	if cm.GetCreatedAt() == 0 {
@@ -750,7 +750,7 @@ func TestSetConfigWithValidation(t *testing.T) {
 	}
 }
 
-func TestClone(t *testing.T) {
+func TestConfigManagerClone(t *testing.T) {
 	cm := configuration.NewConfigManager()
 	cm.SetConfig("test_string", "hello world")
 	cm.SetConfig("test_int", 42)

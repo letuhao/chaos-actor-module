@@ -1,5 +1,10 @@
 package constants
 
+// Formula Types
+const (
+	FormulaTypeCalculation = "calculation"
+)
+
 // Flexible Systems Constants
 const (
 	// Speed System Categories
