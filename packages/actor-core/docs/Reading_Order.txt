@@ -1,0 +1,12 @@
+Read these files first from the merged design pack:
+01_Executive_Summary.md
+02_Architecture_and_Source_Structure.md
+04_Constants_Enums_Interfaces.md
+06_Aggregation_Algorithm.md
+07_Caps_and_Layers.md
+08_Combiner_Registry.md
+10_Implementation_Guide.md
+14_Testing_Strategy.md
+23_Performance_Optimizations.md
+24_Subsystem_Development_Guide.md
+25_Production_Deployment_Guide.md

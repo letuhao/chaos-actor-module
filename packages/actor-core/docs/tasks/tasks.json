@@ -1,0 +1,44 @@
+{
+  "phases": [
+    {
+      "name": "Core Types & Interfaces",
+      "steps": [
+        "Create /src/core types: Actor, Subsystem, Contribution, CapContribution, SubsystemOutput, Snapshot",
+        "Create /src/core interfaces: Aggregator, CapsProvider, CombinerRegistry, CapLayerRegistry data"
+      ]
+    },
+    {
+      "name": "Registries",
+      "steps": [
+        "Implement /src/registry/combiner loader (YAML/JSON) with defaults",
+        "Implement /src/registry/layers loader (YAML/JSON) with defaults: order [REALM,WORLD,EVENT,TOTAL], policy INTERSECT"
+      ]
+    },
+    {
+      "name": "Caps Provider",
+      "steps": [
+        "Within-layer merge per dimension (baseline/additive/hard/override)",
+        "Across-layer reduction with intersection"
+      ]
+    },
+    {
+      "name": "Aggregator",
+      "steps": [
+        "Collect SubsystemOutput",
+        "Merge contributions per dimension with sorted order",
+        "Apply pipeline/operator per MergeRule",
+        "Clamp by EffectiveCapsFinal",
+        "Emit Snapshot"
+      ]
+    },
+    {
+      "name": "Testing",
+      "steps": [
+        "JSON schema validation hooks",
+        "Golden tests: load vectors from merged pack",
+        "Property tests: order invariance, clamp invariants",
+        "Optional parity suite"
+      ]
+    }
+  ]
+}

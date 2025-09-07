@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "XP Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "actorGUID",
+    "source",
+    "baseXP",
+    "level"
+  ],
+  "properties": {
+    "actorGUID": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "KILL",
+        "PVP_KILL",
+        "QUEST",
+        "EXPLORE",
+        "EVENT"
+      ]
+    },
+    "baseXP": {
+      "type": "number"
+    },
+    "level": {
+      "type": "integer"
+    },
+    "targetLevel": {
+      "type": "integer"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

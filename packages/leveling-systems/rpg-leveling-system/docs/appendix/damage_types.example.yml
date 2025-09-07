@@ -1,0 +1,14 @@
+types:
+  - { key: physical }
+  - { key: slash, inherits: physical }
+  - { key: pierce, inherits: physical }
+  - { key: blunt,  inherits: physical }
+  - { key: fire }
+  - { key: frost }
+  - { key: shock }
+  - { key: poison }
+  - { key: acid }
+  - { key: holy }
+  - { key: shadow }
+  - { key: spirit }
+  - { key: psychic }

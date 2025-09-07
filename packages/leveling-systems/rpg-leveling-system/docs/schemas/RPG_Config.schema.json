@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RPG Leveling Config",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "points_per_level": {
+      "type": "object",
+      "required": [
+        "min",
+        "max"
+      ],
+      "properties": {
+        "min": {
+          "type": "integer"
+        },
+        "max": {
+          "type": "integer"
+        }
+      }
+    },
+    "xp_curve": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "EXPONENTIAL",
+            "POLYNOMIAL",
+            "HYBRID"
+          ]
+        },
+        "base": {
+          "type": "number"
+        },
+        "growth": {
+          "type": "number"
+        },
+        "exp": {
+          "type": "number"
+        },
+        "softcaps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "level": {
+                "type": "integer"
+              },
+              "mult": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    },
+    "lifespan_per_level": {
+      "type": "number"
+    },
+    "resist_cap_max": {
+      "type": "number"
+    },
+    "baseline_resources": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "hp": {
+          "type": "object",
+          "properties": {
+            "base": {
+              "type": "number"
+            },
+            "k1": {
+              "type": "number"
+            },
+            "k2": {
+              "type": "number"
+            }
+          }
+        },
+        "mana": {
+          "type": "object",
+          "properties": {
+            "base": {
+              "type": "number"
+            },
+            "a1": {
+              "type": "number"
+            },
+            "a2": {
+              "type": "number"
+            }
+          }
+        },
+        "stamina": {
+          "type": "object",
+          "properties": {
+            "base": {
+              "type": "number"
+            },
+            "b1": {
+              "type": "number"
+            },
+            "b2": {
+              "type": "number"
+            },
+            "b3": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    }
+  }
+}
