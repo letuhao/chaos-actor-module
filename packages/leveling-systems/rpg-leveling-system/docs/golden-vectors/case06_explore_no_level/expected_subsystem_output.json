@@ -1,0 +1,28 @@
+{
+  "primary": [],
+  "derived": [
+    {
+      "dimension": "hp_max",
+      "bucket": "FLAT",
+      "value": 100,
+      "system": "rpg_leveling"
+    },
+    {
+      "dimension": "mana_max",
+      "bucket": "FLAT",
+      "value": 0,
+      "system": "rpg_leveling"
+    },
+    {
+      "dimension": "stamina_max",
+      "bucket": "FLAT",
+      "value": 0,
+      "system": "rpg_leveling"
+    }
+  ],
+  "caps": [],
+  "context": {},
+  "meta": {
+    "system": "rpg_leveling"
+  }
+}

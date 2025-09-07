@@ -1,0 +1,4 @@
+{
+  "xp": [],
+  "resource_formulas": "mana=10*int + 5*will; stamina=8*end + 4*will + 2*agi"
+}

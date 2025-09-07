@@ -1,0 +1,12 @@
+{
+  "level": 14,
+  "xp_current": 0,
+  "allocations_plan": {
+    "L15": {
+      "endurance": 6,
+      "agility": 4,
+      "intelligence": 5,
+      "willpower": 5
+    }
+  }
+}

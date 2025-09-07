@@ -1,0 +1,44 @@
+{
+  "primary": [
+    {
+      "dimension": "strength",
+      "bucket": "FLAT",
+      "value": 5,
+      "system": "rpg_leveling"
+    }
+  ],
+  "derived": [
+    {
+      "dimension": "hp_max",
+      "bucket": "FLAT",
+      "value": 110,
+      "system": "rpg_leveling"
+    },
+    {
+      "dimension": "mana_max",
+      "bucket": "FLAT",
+      "value": 0,
+      "system": "rpg_leveling"
+    },
+    {
+      "dimension": "stamina_max",
+      "bucket": "FLAT",
+      "value": 0,
+      "system": "rpg_leveling"
+    }
+  ],
+  "caps": [
+    {
+      "system": "rpg_leveling",
+      "dimension": "lifespan_years",
+      "mode": "ADDITIVE",
+      "kind": "max",
+      "value": 0.5,
+      "scope": "TOTAL"
+    }
+  ],
+  "context": {},
+  "meta": {
+    "system": "rpg_leveling"
+  }
+}

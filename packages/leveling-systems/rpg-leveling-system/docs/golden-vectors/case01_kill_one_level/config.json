@@ -1,0 +1,32 @@
+{
+  "points_per_level": {
+    "min": 5,
+    "max": 5
+  },
+  "xp_curve": {
+    "type": "EXPONENTIAL",
+    "base": 100,
+    "growth": 1.12
+  },
+  "lifespan_per_level": 0.5,
+  "resist_cap_max": 0.85,
+  "baseline_resources": {
+    "enabled": true,
+    "hp": {
+      "base": 100,
+      "k1": 5,
+      "k2": 2
+    },
+    "mana": {
+      "base": 0,
+      "a1": 10,
+      "a2": 5
+    },
+    "stamina": {
+      "base": 0,
+      "b1": 8,
+      "b2": 4,
+      "b3": 2
+    }
+  }
+}

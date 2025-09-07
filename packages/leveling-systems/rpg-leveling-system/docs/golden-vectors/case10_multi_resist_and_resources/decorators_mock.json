@@ -1,0 +1,13 @@
+{
+  "xp": [],
+  "resist_coef": {
+    "physical_resist": {
+      "endurance": 0.01,
+      "agility": 0.002
+    },
+    "fire_resist": {
+      "willpower": 0.005,
+      "intelligence": 0.003
+    }
+  }
+}

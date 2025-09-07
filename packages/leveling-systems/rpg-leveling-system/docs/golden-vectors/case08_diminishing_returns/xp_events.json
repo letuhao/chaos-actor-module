@@ -1,0 +1,26 @@
+[
+  {
+    "id": "m1",
+    "actorGUID": "A",
+    "source": "KILL",
+    "baseXP": 50,
+    "level": 4,
+    "targetLevel": 3
+  },
+  {
+    "id": "m2",
+    "actorGUID": "A",
+    "source": "KILL",
+    "baseXP": 50,
+    "level": 4,
+    "targetLevel": 3
+  },
+  {
+    "id": "m3",
+    "actorGUID": "A",
+    "source": "KILL",
+    "baseXP": 50,
+    "level": 4,
+    "targetLevel": 3
+  }
+]

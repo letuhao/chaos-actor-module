@@ -1,0 +1,10 @@
+[
+  {
+    "id": "e1",
+    "actorGUID": "A",
+    "source": "KILL",
+    "baseXP": 120,
+    "level": 1,
+    "targetLevel": 2
+  }
+]

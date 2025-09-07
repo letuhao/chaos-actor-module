@@ -1,0 +1,16 @@
+{
+  "cases": [
+    "case01_kill_one_level",
+    "case02_quest_two_levels",
+    "case03_xp_decorators",
+    "case04_resource_decorators",
+    "case05_resistances_and_cap",
+    "case06_explore_no_level",
+    "case07_pvp_disparity_bonus",
+    "case08_diminishing_returns",
+    "case09_multi_level_up",
+    "case10_multi_resist_and_resources"
+  ],
+  "count": 10,
+  "generated": "2025-09-07 19:34"
+}

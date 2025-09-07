@@ -1,0 +1,44 @@
+# Cấu hình cảnh giới & caps (rút gọn minh hoạ)
+realms:
+  - id: mortal
+    name: Phàm
+    caps:
+      qi_purity: [0.00, 0.10]
+      dantian_capacity: [0, 200]
+      shen_depth: [0, 5]
+
+  - id: qi_1_9
+    name: Luyện Khí (Tầng 1-9)
+    per_tier:
+      t1: { dantian_capacity: [200, 800], qi_purity: [0.05, 0.15], meridian_conductivity: [10, 40] }
+      t5: { dantian_capacity: [2_000, 5_000], qi_purity: [0.10, 0.25], meridian_conductivity: [60, 150] }
+      t9: { dantian_capacity: [6_000, 12_000], qi_purity: [0.20, 0.35], meridian_conductivity: [120, 260] }
+
+  - id: foundation
+    name: Trúc Cơ (Sơ/Trung/Hậu/Viên Mãn)
+    stages:
+      so:   { dantian_capacity: [12_000, 20_000], qi_purity: [0.25, 0.45], shen_depth: [20, 60] }
+      trung:{ dantian_capacity: [20_000, 28_000], qi_purity: [0.30, 0.55], shen_depth: [40, 90] }
+      hau:  { dantian_capacity: [28_000, 36_000], qi_purity: [0.35, 0.65], shen_depth: [60, 120] }
+      vien_man:{ dantian_capacity: [36_000, 48_000], qi_purity: [0.40, 0.70], shen_depth: [80, 150] }
+
+  - id: golden_core
+    name: Kim Đan (Hạ/Trung/Thượng/Viên Mãn) + phẩm đan
+    stages:
+      ha:   { dantian_capacity: [50_000, 80_000], qi_purity: [0.45, 0.80], shen_depth: [120, 300] }
+      trung:{ dantian_capacity: [70_000, 100_000], qi_purity: [0.50, 0.83], shen_depth: [160, 450] }
+      thuong:{ dantian_capacity: [90_000, 120_000], qi_purity: [0.55, 0.85], shen_depth: [220, 700] }
+      vien_man:{ dantian_capacity: [110_000, 150_000], qi_purity: [0.60, 0.87], shen_depth: [300, 900] }
+    pill_grade:
+      ha:   { eff_qi_to_shen: [0.08, 0.20], dantian_stability: [50, 150] }
+      trung:{ eff_qi_to_shen: [0.12, 0.30], dantian_stability: [120, 240] }
+      thuong:{eff_qi_to_shen: [0.16, 0.40], dantian_stability: [180, 320] }
+      cuc:  { eff_qi_to_shen: [0.20, 0.50], dantian_stability: [240, 400] }
+
+  - id: nascent_soul
+    name: Nguyên Anh (Tiểu/Trung/Đại/Viên Mãn)
+    stages:
+      tieu: { shen_depth: [500, 900], shen_clarity: [300, 700], dantian_capacity: [130_000, 200_000] }
+      trung:{ shen_depth: [800, 1_300], shen_clarity: [500, 1_000], dantian_capacity: [180_000, 260_000] }
+      dai:  { shen_depth: [1_200, 1_800], shen_clarity: [800, 1_400], dantian_capacity: [240_000, 320_000] }
+      vien_man:{ shen_depth: [1_600, 2_400], shen_clarity: [1_100, 1_800], dantian_capacity: [300_000, 400_000] }

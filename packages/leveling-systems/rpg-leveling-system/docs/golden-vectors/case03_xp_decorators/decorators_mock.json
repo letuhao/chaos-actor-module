@@ -1,0 +1,16 @@
+{
+  "xp": [
+    {
+      "phase": "POST",
+      "deltaPercent": 0.2
+    },
+    {
+      "phase": "POST",
+      "deltaPercent": -0.1
+    },
+    {
+      "phase": "FINALIZE",
+      "capMax": 500
+    }
+  ]
+}
