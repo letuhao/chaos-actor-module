@@ -1,0 +1,1 @@
+db.player_progress.createIndex({_id:1});

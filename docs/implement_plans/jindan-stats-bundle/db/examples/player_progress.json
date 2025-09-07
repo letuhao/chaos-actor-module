@@ -1,0 +1,11 @@
+{
+  "_id": "actor1",
+  "level": 10,
+  "realm": "FoundationEstablishment",
+  "stage": "Early",
+  "allocations": {
+    "VitalEssence": 5,
+    "QiControl": 3
+  },
+  "updatedAt": "2025-09-06T21:57:33.322770Z"
+}
