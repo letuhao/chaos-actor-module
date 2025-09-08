@@ -1,11 +1,11 @@
 # 05 — Hợp đồng dữ liệu (SubsystemOutput)
 
 ## Primary (emit theo phân bổ/tu luyện)
-- Tất cả chỉ số trong **01_Primary_Stats_KimDan.md** (FLAT/MULT tuỳ pháp môn).
+- Tất cả chỉ số trong **components/** và **dao-system/** (FLAT/MULT tuỳ pháp môn).
 
 ## Derived
 - `qi_max`, `qi_regen`, `spell_power`, `divine_sense`, `channel_speed`,
-  `mental_resist`, `tribulation_resist`, `alchemy_success`… (từ file 02).
+  `mental_resist`, `tribulation_resist`, `alchemy_success`… (từ các file components).
 
 ## Caps
 - Theo **REALM** cho primary & derived cốt lõi (`qi_purity`, `dantian_*`, `meridian_*`, `shen_*`).  
